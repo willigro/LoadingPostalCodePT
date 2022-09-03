@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.work.Data
 import androidx.work.WorkInfo
-import com.rittmann.androidtools.log.log
 import com.rittmann.common.lifecycle.BaseFragmentBinding
 import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
@@ -20,7 +19,6 @@ class PostalCodeFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.download().observe(viewLifecycleOwner) {
-            it.toString().log()
             when (it.state) {
                 WorkInfo.State.RUNNING -> {
                     updateProgress(it.progress)
@@ -33,6 +31,7 @@ class PostalCodeFragment :
         }
     }
 
+    // TODO: Refactor it to show the numeric progress
     private fun updateProgress(progress: Data) {
         binding.progress.text = progress.toString()
     }
