@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Permissions -->
+    <string name="permissions_were_denied_dialog_message">Can you please accept these permissions?</string>
+    <string name="permissions_were_denied">How dare you?</string>
+    <string name="permissions_were_denied_and_blocked">
+        "You have previously declined this permission.\n"
+        "You must approve this permission in \"Permissions\" in the app settings on your device.",
+    </string>
+</resources>
