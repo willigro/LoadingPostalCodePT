@@ -3,6 +3,7 @@ package com.rittmann.postalcode.ui
 import android.os.Bundle
 import android.view.View
 import androidx.work.WorkInfo
+import com.rittmann.androidtools.log.log
 import com.rittmann.common.lifecycle.BaseFragmentBinding
 import com.rittmann.common.workmanager.DOWNLOAD_STATUS_KEY
 import com.rittmann.common.workmanager.DownLoadFileWorkManager
@@ -29,19 +30,26 @@ class PostalCodeFragment :
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        downloadFile()
+        startAndObserverThePostalCodeDownload()
     }
 
     private fun setupObservers() {
         viewModel.apply {
             downloadWasAlreadyConclude.observe(viewLifecycleOwner) {
-                viewModel.storePostalCode()
+                startAndObserveTheStorePostalCode()
             }
         }
     }
 
-    private fun downloadFile() {
+    private fun startAndObserveTheStorePostalCode() {
+        viewModel.storePostalCode()?.observe(viewLifecycleOwner) {
+            "storePostalCode=$it".log()
+        }
+    }
+
+    private fun startAndObserverThePostalCodeDownload() {
         viewModel.download()?.observe(viewLifecycleOwner) {
+            it.toString().log()
             when (it.state) {
                 WorkInfo.State.RUNNING -> {
                     updateProgress()
@@ -52,7 +60,7 @@ class PostalCodeFragment :
                 else -> {}
             }
 
-            if (it.progress.keyValueMap[DOWNLOAD_STATUS_KEY] == DownLoadFileWorkManager.DownloadStatus.DONE) {
+            if (it.progress.keyValueMap[DOWNLOAD_STATUS_KEY] == DownLoadFileWorkManager.DownloadStatus.DONE.value) {
                 viewModel.downloadWasConcluded()
                 updateProgress()
             }

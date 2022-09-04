@@ -10,7 +10,7 @@ import Depends.Worker.implementWorker
 
 android {
     buildTypes.forEach {
-        it.buildConfigField("String", "BASE_NAME", "\"pokedex.db\"")
+        it.buildConfigField("String", "BASE_NAME", "\"wtest.db\"")
     }
 }
 
@@ -54,5 +54,7 @@ dependencies {
     implementWorker()
 
     implementation ("commons-io:commons-io:2.11.0")
+
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0") //for JVM platform
 
 }

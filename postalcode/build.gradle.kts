@@ -58,6 +58,4 @@ dependencies {
 
     // =========== Worker ==============
     implementWorker()
-
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0") //for JVM platform
 }

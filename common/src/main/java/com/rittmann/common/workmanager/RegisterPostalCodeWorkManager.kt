@@ -6,36 +6,32 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.rittmann.androidtools.log.log
-import java.io.File
-import java.net.HttpURLConnection
-import java.util.concurrent.TimeUnit
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import com.rittmann.common.mappers.lineStringFromCsvToPostalCodeList
+import com.rittmann.common.model.PostalCode
+import com.rittmann.common.repositories.PostalCodeRepository
+import javax.inject.Inject
 
-val POSTAL_CODE_FILE_PATH =
-    "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv"
-const val POSTAL_CODE_URL =
-    "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
-
-const val DOWNLOAD_STATUS_KEY = "DOWNLOAD_STATUS_KEY"
 
 // TODO Refactor it
-class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(applicationContext, workerParams) {
+class RegisterPostalCodeWorkManager @Inject constructor(
+    applicationContext: Context,
+    workerParams: WorkerParameters,
+    private val postalCodeRepository: PostalCodeRepository,
+) : CoroutineWorker(applicationContext, workerParams) {
 
     enum class DownloadStatus(val value: Int) {
         DONE(1),
     }
 
-    val notificationId = 123
+    val notificationId = 456
     private val notificationManager =
         applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as
                 NotificationManager
@@ -44,7 +40,7 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
 
     init {
         channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel("my_service", "My Background Service")
+            createNotificationChannel("my_service_2", "My Background Service")
         } else {
             ""
         }
@@ -55,51 +51,38 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
             ForegroundInfo(notificationId, createNotification())
         )
 
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1L, TimeUnit.MINUTES)
-            .readTimeout(1L, TimeUnit.MINUTES)
-            .addInterceptor(UnzippingInterceptor())
-            .build()
+        /*
+        * Im going to simply verify the registered amount and if it is more than 0
+        * I'll take it as everything was registered, just for simplicity
+        * */
+        postalCodeRepository.getCount().log("Count on manager")
+        if (postalCodeRepository.getCount() == 0) {
+            val postalCodes = arrayListOf<PostalCode>()
+            csvReader().open(POSTAL_CODE_FILE_PATH) {
 
-        val request =
-            Request.Builder()
-                .addHeader("Accept-Encoding", "gzip")
-                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Accept", "*/*")
-                .url(POSTAL_CODE_URL)
-                .build()
-
-        runCatching {
-            val response = okHttpClient.newCall(request).execute()
-            val body = response.body
-            val responseCode = response.code
-
-            if (responseCode >= HttpURLConnection.HTTP_OK &&
-                responseCode < HttpURLConnection.HTTP_MULT_CHOICE &&
-                body != null
-            ) {
-                body.byteStream().apply {
-                    val file = File(POSTAL_CODE_FILE_PATH)
-                    file.createNewFile()
-                    file.outputStream().use { fileOut ->
-                        var bytesCopied = 0
-                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                        var bytes = read(buffer)
-
-                        while (bytes >= 0) {
-                            fileOut.write(buffer, 0, bytes)
-                            bytesCopied += bytes
-                            bytes = read(buffer)
-                        }
-                        setProgress(workDataOf(DOWNLOAD_STATUS_KEY to DownloadStatus.DONE.value))
+                val sequence = readAllAsSequence()
+                var i = 0
+                for (line in sequence) {
+//                i.toString().log()
+                    if (i == 0) {
+                        i++
+                        continue
                     }
-
+                    i++ // using to limit the amount
+                    postalCodes.add(line.lineStringFromCsvToPostalCodeList())
+//                if (i == 10) break
                 }
-            } else {
-                // Report the error
+
+                postalCodes.size.log("Size csv")
             }
+
+            postalCodeRepository.keepPostalCode(postalCodes)
+            val count = postalCodeRepository.getCount()
+            count.log("Count ")
         }
+
+        setProgress(workDataOf(DOWNLOAD_STATUS_KEY to DownloadStatus.DONE.value))
+
         return Result.success()
     }
 

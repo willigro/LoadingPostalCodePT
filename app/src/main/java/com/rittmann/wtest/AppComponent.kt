@@ -2,6 +2,7 @@ package com.rittmann.wtest
 
 import android.app.Application
 import androidx.work.WorkManager
+import com.rittmann.common.datasource.local.RoomModule
 import com.rittmann.common.datasource.network.di.PostalCodeApiNetworkModule
 import com.rittmann.common.datasource.sharedpreferences.di.SharedPreferencesModule
 import com.rittmann.common.lifecycle.DispatcherProvider
@@ -14,7 +15,7 @@ import dagger.android.DaggerApplication
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidInjectionModule::class, PostalCodeApiNetworkModule::class, SharedPreferencesModule::class, MainModule::class, PostalCodeModuleBuilder::class])
+@Component(modules = [AndroidInjectionModule::class, RoomModule::class, PostalCodeApiNetworkModule::class, SharedPreferencesModule::class, MainModule::class, PostalCodeModuleBuilder::class])
 interface AppComponent : AndroidInjector<DaggerApplication> {
     fun inject(application: WTestApplication)
 

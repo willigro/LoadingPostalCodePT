@@ -10,7 +10,7 @@ import com.rittmann.common.datasource.local.TablePostalCode
 class PostalCode(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = TablePostalCode.ID)
-    val id: Long? = null,
+    val id: Long,
 
     @ColumnInfo(name = TablePostalCode.COD_DISTRITO)
     val codDistrito: Int,
