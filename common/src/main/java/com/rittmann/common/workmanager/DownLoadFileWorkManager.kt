@@ -13,16 +13,26 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.rittmann.androidtools.log.log
 import java.io.File
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+val POSTAL_CODE_FILE_PATH =
+    "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv"
+const val POSTAL_CODE_URL =
+    "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
+
+const val DOWNLOAD_STATUS_KEY = "DOWNLOAD_STATUS_KEY"
+
 // TODO Refactor it
 class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(applicationContext, workerParams) {
+
+    enum class DownloadStatus {
+        DONE,
+    }
 
     val notificationId = 123
     private val notificationManager =
@@ -41,18 +51,22 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
 
     override suspend fun doWork(): Result {
         setForeground(
-            ForegroundInfo(notificationId, createNotification(0))
+            ForegroundInfo(notificationId, createNotification())
         )
 
-        val okHttpBuilder = OkHttpClient.Builder()
+        val okHttpClient = OkHttpClient.Builder()
             .connectTimeout(1L, TimeUnit.MINUTES)
             .readTimeout(1L, TimeUnit.MINUTES)
-
-        val okHttpClient = okHttpBuilder.build()
+            .addInterceptor(UnzippingInterceptor())
+            .build()
 
         val request =
-            Request.Builder().addHeader("Accept-Encoding", "gzip, deflate, br")
-                .url("https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv")
+            Request.Builder()
+                .addHeader("Accept-Encoding", "gzip")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .url(POSTAL_CODE_URL)
                 .build()
 
         runCatching {
@@ -65,12 +79,8 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
                 body != null
             ) {
                 body.byteStream().apply {
-                    val length = body.contentLength()
-
-                    val file =
-                        File("${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv")
+                    val file = File(POSTAL_CODE_FILE_PATH)
                     file.createNewFile()
-
                     file.outputStream().use { fileOut ->
                         var bytesCopied = 0
                         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -80,20 +90,16 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
                             fileOut.write(buffer, 0, bytes)
                             bytesCopied += bytes
                             bytes = read(buffer)
-                            // TODO change the return to something like Result
-                            val progress = (((bytesCopied * 100) / length).toInt())
-
-                            notificationManager.notify(notificationId, createNotification(progress))
-
-                            setProgress(workDataOf("Progress" to progress))
+                            notificationManager.notify(notificationId, createNotification())
                         }
+
+                        setProgress(workDataOf(DOWNLOAD_STATUS_KEY to DownloadStatus.DONE))
                     }
                 }
             } else {
                 // Report the error
             }
         }
-
         return Result.success()
     }
 
@@ -101,7 +107,7 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
      * Create the notification and required channel (O+) for running work
      * in a foreground service.
      */
-    private fun createNotification(downloadProgress: Int): Notification {
+    private fun createNotification(): Notification {
         val cancelPendingIntent =
             WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
 
@@ -110,10 +116,10 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
         } else {
             Notification.Builder(applicationContext)
         }
-        downloadProgress.log()
+
         builder.setContentTitle("title")
             .setTicker("title")
-            .setProgress(100, downloadProgress, false)
+            .setProgress(100, 0, true)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)

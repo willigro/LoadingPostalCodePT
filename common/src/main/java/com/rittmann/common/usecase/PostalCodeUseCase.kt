@@ -2,12 +2,14 @@ package com.rittmann.common.usecase
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.rittmann.androidtools.log.log
 import com.rittmann.common.constants.EMPTY_STRING
 import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
 import com.rittmann.common.workmanager.DownLoadFileWorkManager
@@ -17,12 +19,13 @@ import javax.inject.Inject
 
 interface PostalCodeUseCase {
     fun download(): LiveData<WorkInfo>
+    fun downloadConcluded()
     fun downloadHasFailed()
+    fun downloadWasAlreadyConcluded(): Boolean
 }
 
 class PostalCodeUseCaseImpl @Inject constructor(
     private val sharedPreferencesModel: SharedPreferencesModel,
-//    private val application: Application,
     private val workManager: WorkManager,
 ) : PostalCodeUseCase {
 
@@ -45,8 +48,18 @@ class PostalCodeUseCaseImpl @Inject constructor(
         return workManager.getWorkInfoByIdLiveData(periodicWorkRequest.id)
     }
 
+    override fun downloadConcluded() {
+        sharedPreferencesModel.downloadWasConcluded()
+    }
+
     override fun downloadHasFailed() {
         sharedPreferencesModel.setNotificationId(EMPTY_STRING)
+    }
+
+    override fun downloadWasAlreadyConcluded(): Boolean {
+        return sharedPreferencesModel.getIsDownloadConcluded().apply {
+            "downloadWasAlreadyConcluded=$this".log()
+        }
     }
 
     private fun getNotificationId(): String {
