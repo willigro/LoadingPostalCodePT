@@ -7,4 +7,13 @@
         "You have previously declined this permission.\n"
         "You must approve this permission in \"Permissions\" in the app settings on your device.",
     </string>
+
+    <!-- WorkManager -->
+    <string name="work_manager_notification_cancel">Cancel</string>
+
+    <!-- WorkManager - Download postal codes -->
+    <string name="work_manager_download_postal_codes_notification_title">Downloading postal codes</string>
+
+    <!-- WorkManager - register postal codes -->
+    <string name="work_manager_register_postal_codes_notification_title">Registering postal codes</string>
 </resources>

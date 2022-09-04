@@ -10,32 +10,42 @@ import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.rittmann.androidtools.log.log
+import com.rittmann.common.R
 import java.io.File
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 val POSTAL_CODE_FILE_PATH =
     "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv"
+
 const val POSTAL_CODE_URL =
     "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
-
-const val DOWNLOAD_STATUS_KEY = "DOWNLOAD_STATUS_KEY"
 
 // TODO Refactor it
 class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(applicationContext, workerParams) {
 
+    class Factory @Inject constructor() : ChildWorkerFactory {
+        override fun create(appContext: Context, params: WorkerParameters): ListenableWorker {
+            return DownLoadFileWorkManager(
+                appContext,
+                params,
+            )
+        }
+    }
+
     enum class DownloadStatus(val value: Int) {
         DONE(1),
     }
 
-    val notificationId = 123
+    private val notificationId = 123
     private val notificationManager =
         applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as
                 NotificationManager
@@ -44,7 +54,10 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
 
     init {
         channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel("my_service", "My Background Service")
+            createNotificationChannel(
+                DownLoadFileWorkManager::class.java.name,
+                "My Background Service"
+            )
         } else {
             ""
         }
@@ -117,13 +130,22 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
             Notification.Builder(applicationContext)
         }
 
-        builder.setContentTitle("title")
-            .setTicker("title")
+        builder
+            .setContentTitle(
+                applicationContext.getString(R.string.work_manager_download_postal_codes_notification_title)
+            )
+            .setTicker(
+                applicationContext.getString(R.string.work_manager_download_postal_codes_notification_title)
+            )
             .setProgress(100, 0, true)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .addAction(android.R.drawable.ic_delete, "cancel", cancelPendingIntent)
+            .addAction(
+                android.R.drawable.ic_delete,
+                applicationContext.getString(R.string.work_manager_notification_cancel),
+                cancelPendingIntent,
+            )
         return builder.build()
     }
 

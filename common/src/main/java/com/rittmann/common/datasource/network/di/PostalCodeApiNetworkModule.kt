@@ -5,7 +5,7 @@ import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rittmann.common.datasource.network.BaseRestApi
-import com.rittmann.common.repositories.PostalCodeApi
+import com.rittmann.common.repositories.postecode.PostalCodeApi
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

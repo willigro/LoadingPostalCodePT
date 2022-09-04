@@ -1,16 +1,21 @@
 package com.rittmann.wtest
 
+import androidx.work.Configuration
 import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import com.rittmann.common.lifecycle.DefaultDispatcherProvider
 import com.rittmann.common.lifecycle.LifecycleApp
 import com.rittmann.widgets.dialog.ModalUtil
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+import javax.inject.Inject
 
 class WTestApplication : DaggerApplication(), LifecycleApp {
 
-    private lateinit var appComponent: AppComponent
+    @Inject
+    lateinit var workerFactory: WorkerFactory
 
+    private lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()
@@ -26,12 +31,16 @@ class WTestApplication : DaggerApplication(), LifecycleApp {
         appComponent = DaggerAppComponent.builder()
             .application(this)
             .dispatcherProvider(DefaultDispatcherProvider())
-            .workManager(WorkManager.getInstance(applicationContext))
             .build()
 
         appComponent.inject(this)
         appComponent.inject(DefaultDispatcherProvider())
-        appComponent.inject(WorkManager.getInstance(applicationContext))
+
+        // Initialize the work manager with a custom configuration, allowing to provide variables
+        WorkManager.initialize(
+            applicationContext,
+            Configuration.Builder().setWorkerFactory(workerFactory).build()
+        )
 
         return appComponent
     }

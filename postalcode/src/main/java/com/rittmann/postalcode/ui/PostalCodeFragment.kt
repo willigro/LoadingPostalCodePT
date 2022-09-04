@@ -26,48 +26,69 @@ class PostalCodeFragment :
     @Inject
     lateinit var viewModel: PostalCodeViewModel
 
+    private var progressStr = ""
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        startAndObserverThePostalCodeDownload()
+        viewModel.download()
     }
 
     private fun setupObservers() {
         viewModel.apply {
+
+            downloadPostalCodeWorkInfo.observe(viewLifecycleOwner) {
+                progressStr += "downloadPostalCodeWorkInfo ${it.state} - ${it.progress.keyValueMap[DOWNLOAD_STATUS_KEY]}\n"
+                when (it.state) {
+                    WorkInfo.State.RUNNING -> {
+                        updateProgressDownloadPostalCodeFile()
+                    }
+                    WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                        viewModel.downloadHasFailed()
+                    }
+                    else -> {}
+                }
+
+                if (it.progress.keyValueMap[DOWNLOAD_STATUS_KEY] == DownLoadFileWorkManager.DownloadStatus.DONE.value) {
+                    viewModel.downloadWasConcluded()
+                    updateProgressDownloadPostalCodeFile()
+                }
+            }
+
+            registerPostalCodeWorkInfo.observe(viewLifecycleOwner) {
+                progressStr += "registerPostalCodeWorkInfo ${it.state} - ${it.progress.keyValueMap[DOWNLOAD_STATUS_KEY]}\n"
+                when (it.state) {
+                    WorkInfo.State.RUNNING -> {
+                        updateProgressRegisterPostalCodeFile()
+                    }
+                    WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                        viewModel.storePostalCodeHasFailed()
+                    }
+                    // Triggered when starts and when ends
+                    WorkInfo.State.ENQUEUED -> {
+                        viewModel.checkIfStoreWasConclude()
+                    }
+                    else -> {}
+                }
+            }
             downloadWasAlreadyConclude.observe(viewLifecycleOwner) {
-                startAndObserveTheStorePostalCode()
-            }
-        }
-    }
-
-    private fun startAndObserveTheStorePostalCode() {
-        viewModel.storePostalCode()?.observe(viewLifecycleOwner) {
-            "storePostalCode=$it".log()
-        }
-    }
-
-    private fun startAndObserverThePostalCodeDownload() {
-        viewModel.download()?.observe(viewLifecycleOwner) {
-            it.toString().log()
-            when (it.state) {
-                WorkInfo.State.RUNNING -> {
-                    updateProgress()
-                }
-                WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
-                    viewModel.downloadHasFailed()
-                }
-                else -> {}
+                viewModel.storePostalCode()
+                // TODO update UI
             }
 
-            if (it.progress.keyValueMap[DOWNLOAD_STATUS_KEY] == DownLoadFileWorkManager.DownloadStatus.DONE.value) {
-                viewModel.downloadWasConcluded()
-                updateProgress()
+            storeWasAlreadyConclude.observe(viewLifecycleOwner) {
+                "storeWasAlreadyConclude concluded".log()
             }
         }
     }
 
     // TODO: Refactor it to show something cool
-    private fun updateProgress() {
+    private fun updateProgressDownloadPostalCodeFile() {
+        binding.progress.text = progressStr
+    }
+
+    private fun updateProgressRegisterPostalCodeFile() {
+        binding.progress.text = progressStr
     }
 }

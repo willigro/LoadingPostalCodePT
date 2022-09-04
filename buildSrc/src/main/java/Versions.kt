@@ -8,7 +8,7 @@ object Versions {
     const val GRADLE_TOOL_BUILD = "4.1.2"
 
     // Id
-    const val APPLICATION_ID = "com.rittmann.investmenttracks"
+    const val APPLICATION_ID = "com.rittmann.wtest"
 
     // Compile
     const val COMPILE_SKD_VERSION = 31

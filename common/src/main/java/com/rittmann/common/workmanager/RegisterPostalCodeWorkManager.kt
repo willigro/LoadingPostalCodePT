@@ -9,29 +9,37 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.rittmann.androidtools.log.log
+import com.rittmann.common.R
 import com.rittmann.common.mappers.lineStringFromCsvToPostalCodeList
 import com.rittmann.common.model.PostalCode
-import com.rittmann.common.repositories.PostalCodeRepository
+import com.rittmann.common.repositories.postecode.PostalCodeRepository
 import javax.inject.Inject
+import javax.inject.Provider
 
-
-// TODO Refactor it
-class RegisterPostalCodeWorkManager @Inject constructor(
+class RegisterPostalCodeWorkManager(
     applicationContext: Context,
     workerParams: WorkerParameters,
     private val postalCodeRepository: PostalCodeRepository,
 ) : CoroutineWorker(applicationContext, workerParams) {
 
-    enum class DownloadStatus(val value: Int) {
-        DONE(1),
+    class Factory @Inject constructor(
+        private val repository: Provider<PostalCodeRepository>
+    ) : ChildWorkerFactory {
+
+        override fun create(appContext: Context, params: WorkerParameters): ListenableWorker {
+            return RegisterPostalCodeWorkManager(
+                appContext,
+                params,
+                repository.get(),
+            )
+        }
     }
 
-    val notificationId = 456
+    private val notificationId = 456
     private val notificationManager =
         applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as
                 NotificationManager
@@ -40,7 +48,10 @@ class RegisterPostalCodeWorkManager @Inject constructor(
 
     init {
         channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel("my_service_2", "My Background Service")
+            createNotificationChannel(
+                RegisterPostalCodeWorkManager::class.java.name,
+                "My Background Service"
+            )
         } else {
             ""
         }
@@ -55,7 +66,6 @@ class RegisterPostalCodeWorkManager @Inject constructor(
         * Im going to simply verify the registered amount and if it is more than 0
         * I'll take it as everything was registered, just for simplicity
         * */
-        postalCodeRepository.getCount().log("Count on manager")
         if (postalCodeRepository.getCount() == 0) {
             val postalCodes = arrayListOf<PostalCode>()
             csvReader().open(POSTAL_CODE_FILE_PATH) {
@@ -63,26 +73,17 @@ class RegisterPostalCodeWorkManager @Inject constructor(
                 val sequence = readAllAsSequence()
                 var i = 0
                 for (line in sequence) {
-//                i.toString().log()
                     if (i == 0) {
                         i++
                         continue
                     }
-                    i++ // using to limit the amount
+                    if (i == 40_000) break
                     postalCodes.add(line.lineStringFromCsvToPostalCodeList())
-//                if (i == 10) break
                 }
-
-                postalCodes.size.log("Size csv")
             }
 
             postalCodeRepository.keepPostalCode(postalCodes)
-            val count = postalCodeRepository.getCount()
-            count.log("Count ")
         }
-
-        setProgress(workDataOf(DOWNLOAD_STATUS_KEY to DownloadStatus.DONE.value))
-
         return Result.success()
     }
 
@@ -100,13 +101,22 @@ class RegisterPostalCodeWorkManager @Inject constructor(
             Notification.Builder(applicationContext)
         }
 
-        builder.setContentTitle("title")
-            .setTicker("title")
+        builder
+            .setContentTitle(
+                applicationContext.getString(R.string.work_manager_register_postal_codes_notification_title)
+            )
+            .setTicker(
+                applicationContext.getString(R.string.work_manager_register_postal_codes_notification_title)
+            )
             .setProgress(100, 0, true)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .addAction(android.R.drawable.ic_delete, "cancel", cancelPendingIntent)
+            .addAction(
+                android.R.drawable.ic_delete,
+                applicationContext.getString(R.string.work_manager_notification_cancel),
+                cancelPendingIntent,
+            )
         return builder.build()
     }
 

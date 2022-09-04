@@ -1,4 +1,4 @@
-package com.rittmann.common.repositories
+package com.rittmann.common.repositories.postecode
 
 import retrofit2.http.GET
 import retrofit2.http.Url
