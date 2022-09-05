@@ -32,6 +32,7 @@ class PostalCodeFragment :
             registerPostalCodeWorkInfo.observe(viewLifecycleOwner) {
                 handleRegisterPostalCodeWorkInfo(it)
             }
+
             downloadWasAlreadyConclude.observe(viewLifecycleOwner) {
                 viewModel.storePostalCode()
             }
@@ -39,14 +40,14 @@ class PostalCodeFragment :
             storeWasAlreadyConclude.observe(viewLifecycleOwner) {
                 "storeWasAlreadyConclude concluded".log()
             }
+
+            observeProgress(this)
+            observeProgressPriority(this)
         }
     }
 
     private fun handleRegisterPostalCodeWorkInfo(it: WorkInfo?) {
         when (it?.state) {
-            WorkInfo.State.RUNNING -> {
-                updateProgressRegisterPostalCodeFile()
-            }
             WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
                 viewModel.storePostalCodeHasFailed()
             }
@@ -60,9 +61,6 @@ class PostalCodeFragment :
 
     private fun handleDownloadPostalCodeWorkInfo(workInfo: WorkInfo?) {
         when (workInfo?.state) {
-            WorkInfo.State.RUNNING -> {
-                updateProgressDownloadPostalCodeFile()
-            }
             WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
                 viewModel.downloadHasFailed()
             }
@@ -72,12 +70,5 @@ class PostalCodeFragment :
             }
             else -> {}
         }
-    }
-
-    // TODO: Refactor it to show something cool
-    private fun updateProgressDownloadPostalCodeFile() {
-    }
-
-    private fun updateProgressRegisterPostalCodeFile() {
     }
 }

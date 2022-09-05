@@ -6,6 +6,7 @@ import androidx.work.WorkInfo
 import com.rittmann.baselifecycle.livedata.SingleLiveEvent
 import com.rittmann.common.lifecycle.BaseViewModelApp
 import com.rittmann.common.usecase.postalcode.PostalCodeUseCase
+import com.rittmann.widgets.progress.ProgressPriorityControl
 import javax.inject.Inject
 
 class PostalCodeViewModel @Inject constructor(
@@ -24,9 +25,15 @@ class PostalCodeViewModel @Inject constructor(
     private val _storeWasAlreadyConclude: SingleLiveEvent<Void> = SingleLiveEvent()
     val storeWasAlreadyConclude: LiveData<Void> get() = _storeWasAlreadyConclude
 
+    private val progressModelDownload = ProgressPriorityControl.ProgressModel(id = "download")
+    private val progressModelRegister = ProgressPriorityControl.ProgressModel(id = "register")
+
     fun downloadPostalCodes() {
+        showProgress(progressModelDownload)
+
         if (postalUseCase.wasDownloadAlreadyConcluded()) {
             _downloadWasAlreadyConclude.call()
+            hideProgress(progressModelDownload)
             return
         }
 
@@ -38,16 +45,21 @@ class PostalCodeViewModel @Inject constructor(
     fun downloadPostalCodeIsEnqueued() {
         if (postalUseCase.wasDownloadAlreadyConcluded()) {
             _downloadWasAlreadyConclude.call()
+            hideProgress(progressModelDownload)
         }
     }
 
     fun downloadHasFailed() {
         postalUseCase.downloadHasFailed()
+        hideProgress(progressModelDownload)
     }
 
     fun storePostalCode() {
+        showProgress(progressModelRegister)
+
         if (postalUseCase.wasStoreAlreadyConcluded()) {
             _storeWasAlreadyConclude.call()
+            hideProgress(progressModelRegister)
             return
         }
 
@@ -59,10 +71,12 @@ class PostalCodeViewModel @Inject constructor(
     fun storePostalCodeIsEnqueued() {
         if (postalUseCase.wasStoreAlreadyConcluded()) {
             _storeWasAlreadyConclude.call()
+            hideProgress(progressModelRegister)
         }
     }
 
     fun storePostalCodeHasFailed() {
         postalUseCase.storePostalCodeHasFailed()
+        hideProgress(progressModelRegister)
     }
 }

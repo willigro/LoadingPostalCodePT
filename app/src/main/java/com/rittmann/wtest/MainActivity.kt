@@ -24,9 +24,14 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     }
 
     private fun setupObservers() {
-        viewModel.navigationEvents.observe(this, ConsumerObserver {
-            screenNavigator.startNavigationEvent(it)
-        })
+        viewModel.apply {
+            navigationEvents.observe(this@MainActivity, ConsumerObserver {
+                screenNavigator.startNavigationEvent(it)
+            })
+
+            observeLoading(this)
+            observeLoadingPriority(this)
+        }
     }
 
     override fun requestPermissionsGranted() {

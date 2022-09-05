@@ -53,8 +53,8 @@ object Versions {
     const val MOCKK = "1.9.3"
 
     // Robbie
-    const val ROBBIE = "alpha-1.3.2.0"
-    const val ROBBIE_LOCAL = "1.3.2.0"
+    const val ROBBIE = "alpha-1.3.2.0" // TODO update the lib before send the project
+    const val ROBBIE_LOCAL = "1.3.2.3" // TODO fix it
 
     // Room
     const val ROOM = "2.4.2"

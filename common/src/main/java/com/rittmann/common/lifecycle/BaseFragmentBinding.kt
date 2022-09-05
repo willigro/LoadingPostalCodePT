@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import com.rittmann.baselifecycle.base.BaseActivity
 import com.rittmann.common.navigation.CloseScreen
 import com.rittmann.common.navigation.NavigationEvent
 import dagger.android.support.DaggerAppCompatDialogFragment
@@ -20,8 +19,8 @@ const val FRAGMENT_EXIT_CODE = 1
 abstract class BaseFragmentBinding<T : ViewDataBinding>(
     private val resId: Int,
     private val resIdContainer: Int = -1
-) :
-    DaggerAppCompatDialogFragment() {
+) : DaggerAppCompatDialogFragment() {
+
     protected lateinit var binding: T
 
     lateinit var rootView: View
@@ -44,26 +43,12 @@ abstract class BaseFragmentBinding<T : ViewDataBinding>(
         it.root
     }
 
-    fun showProgress() {
-        (requireActivity() as BaseActivity).showProgress()
-    }
-
-    fun hideProgress() {
-        (requireActivity() as BaseActivity).hideProgress()
-    }
-
     fun observeProgress(viewModelApp: BaseViewModelApp) {
-        viewModelApp.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading == true) {
-                showProgress()
-            } else {
-                hideProgress()
-            }
-        }
+        (requireActivity() as BaseBindingActivity<*>).observeLoading(viewModelApp)
     }
 
     fun observeProgressPriority(viewModelApp: BaseViewModelApp) {
-        (requireActivity() as BaseActivity).observeLoadingPriority(viewModelApp)
+        (requireActivity() as BaseBindingActivity<*>).observeLoadingPriority(viewModelApp)
     }
 
     @CallSuper

@@ -147,12 +147,12 @@ object Depends {
             testImplement(TEXT_EXT_KTX_JUNIT)
             testImplement(TEXT_EXT_JUNIT)
             testImplement(COROUTINES_TEST)
-            testImplement(ARCH_CORE_TEST)
-            testImplement(ROBOLETRIC)
-            testImplement(HAMCREST)
-
-            testImplement(MOCKK)
-            testImplement(MOCKK_AGENT)
+//            testImplement(ARCH_CORE_TEST)
+//            testImplement(ROBOLETRIC)
+//            testImplement(HAMCREST)
+//
+//            testImplement(MOCKK)
+//            testImplement(MOCKK_AGENT)
         }
 
         fun DependencyHandler.implementAllInDebugTest() {
@@ -162,12 +162,12 @@ object Depends {
             debugImplement(TEST_CORE_KTX)
             debugImplement(TEXT_EXT_KTX_JUNIT)
             debugImplement(TEXT_EXT_JUNIT)
-            debugImplement(COROUTINES_TEST)
-            debugImplement(ARCH_CORE_TEST)
-            debugImplement(ROBOLETRIC)
-            debugImplement(HAMCREST)
-            debugImplement(MOCKK)
-            debugImplement(MOCKK_AGENT)
+//            debugImplement(COROUTINES_TEST)
+//            debugImplement(ARCH_CORE_TEST)
+//            debugImplement(ROBOLETRIC)
+//            debugImplement(HAMCREST)
+//            debugImplement(MOCKK)
+//            debugImplement(MOCKK_AGENT)
         }
     }
 
@@ -189,19 +189,19 @@ object Depends {
             androidTestImplement("junit:junit:${Versions.JUNIT}")
             androidTestImplement("androidx.test.ext:junit:${Versions.JUNIT_EXT}")
             androidTestImplement("androidx.arch.core:core-testing:${Versions.ARCH_TESTING}")
-            androidTestImplement(MOCKK)
-            androidTestImplement(Test.MOCKK_AGENT)
-            androidTestImplement(COROUTINES_TEST)
+//            androidTestImplement(MOCKK)
+//            androidTestImplement(Test.MOCKK_AGENT)
+//            androidTestImplement(COROUTINES_TEST)
         }
 
         fun DependencyHandler.implementEspressoTest() {
-            androidTestImplement(EXPRESSO_CORE)
-            androidTestImplement(EXPRESSO_CONTRIB)
+//            androidTestImplement(EXPRESSO_CORE)
+//            androidTestImplement(EXPRESSO_CONTRIB)
         }
 
         fun DependencyHandler.implementEspressoTestAllInDebug() {
-            implement(EXPRESSO_CORE)
-            implement(EXPRESSO_CONTRIB)
+//            implement(EXPRESSO_CORE)
+//            implement(EXPRESSO_CONTRIB)
         }
     }
 
@@ -237,9 +237,9 @@ object Depends {
 
     object Navigation {
         fun DependencyHandler.implementNavigation() {
-            implement("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
-            implement("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
-            implement("androidx.navigation:navigation-dynamic-features-fragment:${Versions.NAVIGATION}")
+//            implement("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
+//            implement("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
+//            implement("androidx.navigation:navigation-dynamic-features-fragment:${Versions.NAVIGATION}")
         }
     }
 

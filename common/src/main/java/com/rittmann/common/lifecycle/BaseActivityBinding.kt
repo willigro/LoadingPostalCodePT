@@ -15,10 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentResultListener
-import com.rittmann.androidtools.log.log
 import com.rittmann.common.R
 import com.rittmann.common.extensions.toast
 import com.rittmann.common.navigation.ScreenNavigator
+import com.rittmann.widgets.progress.ProgressPriorityControl
+import com.rittmann.widgets.progress.ProgressVisibleControl
 import dagger.android.support.DaggerAppCompatActivity
 
 
@@ -33,6 +34,8 @@ private val PERMISSIONS_STORAGE = mutableListOf(
 abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) :
     DaggerAppCompatActivity(), FragmentResultListener {
 
+    private val progressPriorityControl: ProgressPriorityControl = ProgressPriorityControl()
+
     private val storagePermissionResultLauncher: ActivityResultLauncher<Intent> by lazy {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -46,6 +49,7 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
             }
         }
     }
+
     protected lateinit var binding: T
 
     abstract val screenHolder: Int
@@ -58,6 +62,110 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, resId)
         binding.lifecycleOwner = this
+    }
+
+    /**
+     * All the progress is implemented for Robbie, but cause I didn't make it for Dagger, I need
+     * to implement few parts again
+     * */
+
+    open fun showProgress(
+        closeKeyboard: Boolean = false,
+        cancelable: Boolean = false,
+        dismissCallback: (() -> Unit)? = null
+    ) {
+        ProgressVisibleControl.init(this, screenHolder)
+        ProgressVisibleControl.show(cancelable, dismissCallback)
+    }
+
+    open fun showProgressPriority(
+        priority: ProgressPriorityControl.Priority,
+        ignoreId: Boolean = true,
+        closeKeyboard: Boolean = false,
+        cancelable: Boolean = false,
+        dismissCallback: (() -> Unit)? = null
+    ): ProgressPriorityControl.ProgressModel {
+        progressPriorityControl.configureCallbacksOnStarted {
+            showProgress(
+                closeKeyboard,
+                cancelable,
+                dismissCallback
+            )
+        }
+
+        return progressPriorityControl.add(priority, ignoreId)
+    }
+
+    open fun showProgressPriority(
+        progressModel: ProgressPriorityControl.ProgressModel,
+        closeKeyboard: Boolean = false,
+        cancelable: Boolean = false,
+        dismissCallback: (() -> Unit)? = null
+    ): ProgressPriorityControl.ProgressModel {
+        progressPriorityControl.configureCallbacksOnStarted {
+            showProgress(
+                closeKeyboard,
+                cancelable,
+                dismissCallback
+            )
+        }
+
+        return progressPriorityControl.add(progressModel)
+    }
+
+    open fun hideProgress(closeKeyboard: Boolean = false) {
+        ProgressVisibleControl.hide()
+    }
+
+    open fun hideProgressPriority(
+        progressModel: ProgressPriorityControl.ProgressModel,
+        closeKeyboard: Boolean = false
+    ) {
+        progressPriorityControl.configureCallbacksOnCleared {
+            hideProgress(closeKeyboard)
+        }
+
+        progressPriorityControl.remove(progressModel)
+    }
+
+    open fun hideProgressPriority(
+        priority: ProgressPriorityControl.Priority,
+        closeKeyboard: Boolean = false
+    ) {
+        progressPriorityControl.configureCallbacksOnCleared {
+            hideProgress(closeKeyboard)
+        }
+
+        progressPriorityControl.remove(priority)
+    }
+
+    fun observeLoading(baseViewModelApp: BaseViewModelApp) {
+        baseViewModelApp.isLoading.observe(this) {
+            if (it == true) showProgress()
+            else hideProgress()
+        }
+    }
+
+    fun observeLoadingPriority(baseViewModel: BaseViewModelApp) {
+        baseViewModel.isLoadingPriority.observe(this) { progressObservable ->
+            if (progressObservable.showing) {
+                progressObservable.model?.also { model ->
+                    showProgressPriority(model)
+                } ?: kotlin.run {
+                    progressObservable?.priority?.also { priority ->
+                        showProgressPriority(priority)
+                    }
+                }
+            } else {
+                progressObservable.model?.also { model ->
+                    hideProgressPriority(model)
+                } ?: kotlin.run {
+                    progressObservable?.priority?.also { priority ->
+                        hideProgressPriority(priority)
+                    }
+                }
+            }
+        }
     }
 
     // TODO: move the permissions code
@@ -117,9 +225,6 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
         permissions: Array<String>,
         grantResults: IntArray,
     ) {
-        grantResults.forEach {
-            it.toString().log()
-        }
         when (requestCode) {
             REQUEST_EXTERNAL_STORAGE -> {
                 for (i in permissions.indices) {
