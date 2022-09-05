@@ -9,15 +9,6 @@ import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
 import javax.inject.Inject
 
-/**
- * TODO: Save the postal code when:
- *  OK (but im not handling error before save the preferences) - Download is finished
- * TODO: In case of the download had been stopped:
- *  - Save the last index storage and start again when opens the app
- *  - I must keep the total number of postal code to know when I need to stop
- *      - It means that I'll stop and do not download again when the number of items storage is
- *      equals to the postal code items
- * */
 class PostalCodeFragment :
     BaseFragmentBinding<FragmentPostalCodeBinding>(R.layout.fragment_postal_code) {
 
