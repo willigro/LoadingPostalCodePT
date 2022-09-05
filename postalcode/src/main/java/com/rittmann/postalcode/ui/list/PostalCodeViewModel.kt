@@ -2,12 +2,16 @@ package com.rittmann.postalcode.ui.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import androidx.work.WorkInfo
 import com.rittmann.baselifecycle.livedata.SingleLiveEvent
 import com.rittmann.common.lifecycle.BaseViewModelApp
 import com.rittmann.common.usecase.postalcode.PostalCodeUseCase
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 
 class PostalCodeViewModel @Inject constructor(
     private val postalUseCase: PostalCodeUseCase
@@ -27,6 +31,8 @@ class PostalCodeViewModel @Inject constructor(
 
     private val progressModelDownload = ProgressPriorityControl.ProgressModel(id = "download")
     private val progressModelRegister = ProgressPriorityControl.ProgressModel(id = "register")
+
+    val pagingSource = postalUseCase.pagingSource().cachedIn(viewModelScope)
 
     fun downloadPostalCodes() {
         showProgress(progressModelDownload)

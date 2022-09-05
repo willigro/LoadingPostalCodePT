@@ -16,4 +16,7 @@ interface PostalCodeDao {
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(postalCodes: List<PostalCode>)
+
+    @Query("SELECT * FROM ${TablePostalCode.TABLE} ORDER BY ${TablePostalCode.ID} ASC LIMIT :limit OFFSET :offset")
+    fun getPagedList(limit: Int, offset: Int): List<PostalCode>
 }

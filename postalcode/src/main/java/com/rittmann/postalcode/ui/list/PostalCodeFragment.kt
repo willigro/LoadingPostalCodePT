@@ -2,21 +2,31 @@ package com.rittmann.postalcode.ui.list
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkInfo
-import com.rittmann.androidtools.log.log
 import com.rittmann.common.lifecycle.BaseFragmentBinding
+import com.rittmann.common.viewmodel.viewModelProvider
 import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class PostalCodeFragment :
     BaseFragmentBinding<FragmentPostalCodeBinding>(R.layout.fragment_postal_code) {
 
     @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @VisibleForTesting
     lateinit var viewModel: PostalCodeViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = viewModelProvider(viewModelFactory)
 
         setupObservers()
         viewModel.downloadPostalCodes()
@@ -38,11 +48,24 @@ class PostalCodeFragment :
             }
 
             storeWasAlreadyConclude.observe(viewLifecycleOwner) {
-                "storeWasAlreadyConclude concluded".log()
+                setupPostalCodeList()
             }
 
             observeProgress(this)
             observeProgressPriority(this)
+        }
+    }
+
+    private fun setupPostalCodeList() {
+        val adapter = PostalCodeAdapter()
+        binding.postalCodeRecycler.adapter = adapter.withLoadStateFooter(
+            PostalCodeLoadStateAdapter()
+        )
+
+        lifecycleScope.launch {
+            viewModel.pagingSource.collectLatest {
+                adapter.submitData(it)
+            }
         }
     }
 

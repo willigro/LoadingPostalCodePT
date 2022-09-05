@@ -57,4 +57,6 @@ dependencies {
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0") //for JVM platform
 
+    implementation("androidx.paging:paging-runtime-ktx:3.0.0")
+
 }

@@ -7,7 +7,7 @@ import com.rittmann.common.datasource.local.TablePostalCode
 
 // Using the portuguese name to make easier the reading (for me at least)
 @Entity(tableName = TablePostalCode.TABLE)
-class PostalCode(
+data class PostalCode(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = TablePostalCode.ID)
     val id: Long,
@@ -62,4 +62,6 @@ class PostalCode(
 
     @ColumnInfo(name = TablePostalCode.DESIG_POSTAL)
     val desgiPostal: String,
-)
+) {
+    fun retrievePostalCode(): String = "$numCodPostal-$extCodPostal"
+}

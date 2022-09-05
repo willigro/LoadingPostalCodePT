@@ -1,6 +1,7 @@
 package com.rittmann.common.usecase.postalcode
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ListenableWorker
@@ -12,6 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.rittmann.androidtools.log.log
 import com.rittmann.common.constants.EMPTY_STRING
 import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
+import com.rittmann.common.model.PostalCode
 import com.rittmann.common.repositories.postecode.PostalCodeRepository
 import com.rittmann.common.workmanager.DownLoadFileWorkManager
 import com.rittmann.common.workmanager.RegisterPostalCodeWorkManager
@@ -19,6 +21,7 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
 interface PostalCodeUseCase {
     fun downloadPostalCodes(): LiveData<WorkInfo>
@@ -27,6 +30,7 @@ interface PostalCodeUseCase {
     fun storePostalCode(): LiveData<WorkInfo>
     fun storePostalCodeHasFailed()
     fun wasStoreAlreadyConcluded(): Boolean
+    fun pagingSource(): Flow<PagingData<PostalCode>>
 }
 
 class PostalCodeUseCaseImpl @Inject constructor(
@@ -71,6 +75,10 @@ class PostalCodeUseCaseImpl @Inject constructor(
         return sharedPreferencesModel.isRegisterPostalCodeConcluded().apply {
             "wasStoreAlreadyConcluded $this".log()
         }
+    }
+
+    override fun pagingSource(): Flow<PagingData<PostalCode>> {
+        return postalCodeRepository.pagingSource()
     }
 
     enum class WorkerType {

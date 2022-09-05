@@ -15,6 +15,7 @@ plugins {
 }
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation("androidx.paging:paging-runtime-ktx:3.0.0")
 
     // =========== Modules ==============
     implementModules(Modules.common)
