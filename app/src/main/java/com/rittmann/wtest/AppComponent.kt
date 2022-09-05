@@ -8,7 +8,7 @@ import com.rittmann.common.lifecycle.DispatcherProvider
 import com.rittmann.common.repositories.di.RepositoriesModuleBuilder
 import com.rittmann.common.usecase.di.UseCasesModuleBuilder
 import com.rittmann.common.workmanager.di.WorkerModule
-import com.rittmann.postalcode.ui.di.PostalCodeModuleBuilder
+import com.rittmann.postalcode.ui.list.PostalCodeModuleBuilder
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule

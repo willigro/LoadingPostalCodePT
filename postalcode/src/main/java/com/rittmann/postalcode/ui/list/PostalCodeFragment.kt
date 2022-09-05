@@ -1,4 +1,4 @@
-package com.rittmann.postalcode.ui
+package com.rittmann.postalcode.ui.list
 
 import android.os.Bundle
 import android.view.View

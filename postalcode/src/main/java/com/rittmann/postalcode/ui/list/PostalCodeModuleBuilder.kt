@@ -1,12 +1,10 @@
-package com.rittmann.postalcode.ui.di
+package com.rittmann.postalcode.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.rittmann.common.ActivityScoped
 import com.rittmann.common.ViewModelKey
 import com.rittmann.common.viewmodel.ViewModelFactory
-import com.rittmann.postalcode.ui.PostalCodeFragment
-import com.rittmann.postalcode.ui.PostalCodeViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

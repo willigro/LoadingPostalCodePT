@@ -6,7 +6,7 @@
         android:id="@+id/postal_code_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.PostalCodeFragment">
+        tools:context=".ui.list.PostalCodeFragment">
 
 
     </androidx.recyclerview.widget.RecyclerView>
