@@ -13,12 +13,14 @@ import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import com.rittmann.common.R
+import com.rittmann.common.constants.EMPTY_STRING
+import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
 import java.io.File
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Provider
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -29,20 +31,26 @@ const val POSTAL_CODE_URL =
     "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
 
 // TODO Refactor it
-class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerParameters) :
+class DownLoadFileWorkManager(
+    applicationContext: Context,
+    workerParams: WorkerParameters,
+    private val sharedPreferencesModel: SharedPreferencesModel
+) :
     CoroutineWorker(applicationContext, workerParams) {
 
-    class Factory @Inject constructor() : ChildWorkerFactory {
-        override fun create(appContext: Context, params: WorkerParameters): ListenableWorker {
+    class Factory @Inject constructor(
+        private val sharedPreferencesModel: Provider<SharedPreferencesModel>
+    ) : ChildWorkerFactory {
+        override fun create(
+            appContext: Context,
+            params: WorkerParameters
+        ): ListenableWorker {
             return DownLoadFileWorkManager(
                 appContext,
                 params,
+                sharedPreferencesModel.get(),
             )
         }
-    }
-
-    enum class DownloadStatus(val value: Int) {
-        DONE(1),
     }
 
     private val notificationId = 123
@@ -105,7 +113,12 @@ class DownLoadFileWorkManager(applicationContext: Context, workerParams: WorkerP
                             bytesCopied += bytes
                             bytes = read(buffer)
                         }
-                        setProgress(workDataOf(DOWNLOAD_STATUS_KEY to DownloadStatus.DONE.value))
+                        // Check as concluded
+                        sharedPreferencesModel.downloadWasConcluded()
+
+                        // In case of needed, reset the ids to create new notifications and workers
+                        sharedPreferencesModel.setDownloadPostalCodeNotificationId(EMPTY_STRING)
+                        sharedPreferencesModel.setDownloadPostalCodePeriodicId(EMPTY_STRING)
                     }
 
                 }

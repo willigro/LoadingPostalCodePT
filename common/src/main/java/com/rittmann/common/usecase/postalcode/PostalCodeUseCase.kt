@@ -21,14 +21,12 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 interface PostalCodeUseCase {
-    fun download(): LiveData<WorkInfo>
-    fun downloadConcluded()
+    fun downloadPostalCodes(): LiveData<WorkInfo>
     fun downloadHasFailed()
     fun wasDownloadAlreadyConcluded(): Boolean
     fun storePostalCode(): LiveData<WorkInfo>
-    fun storePostalCodeConcluded()
     fun storePostalCodeHasFailed()
-    suspend fun wasStoreAlreadyConcluded(): Boolean
+    fun wasStoreAlreadyConcluded(): Boolean
 }
 
 class PostalCodeUseCaseImpl @Inject constructor(
@@ -37,16 +35,12 @@ class PostalCodeUseCaseImpl @Inject constructor(
     private val postalCodeRepository: PostalCodeRepository,
 ) : PostalCodeUseCase {
 
-    override fun download(): LiveData<WorkInfo> {
+    override fun downloadPostalCodes(): LiveData<WorkInfo> {
         return createPeriodicWorkRequest(
             DownLoadFileWorkManager::class.java,
             getDownloadPostalCodeNotificationId(),
             WorkerType.DOWNLOAD,
         )
-    }
-
-    override fun downloadConcluded() {
-        sharedPreferencesModel.downloadWasConcluded()
     }
 
     override fun downloadHasFailed() {
@@ -55,7 +49,9 @@ class PostalCodeUseCaseImpl @Inject constructor(
     }
 
     override fun wasDownloadAlreadyConcluded(): Boolean {
-        return sharedPreferencesModel.isDownloadConcluded()
+        return sharedPreferencesModel.isDownloadConcluded().apply {
+            "wasDownloadAlreadyConcluded $this".log()
+        }
     }
 
     override fun storePostalCode(): LiveData<WorkInfo> {
@@ -66,17 +62,15 @@ class PostalCodeUseCaseImpl @Inject constructor(
         )
     }
 
-    override fun storePostalCodeConcluded() {
-        sharedPreferencesModel.registerPostalCodeWasConcluded()
-    }
-
     override fun storePostalCodeHasFailed() {
         sharedPreferencesModel.setRegisterPostalCodeNotificationId(EMPTY_STRING)
         sharedPreferencesModel.setRegisterPostalCodePeriodicId(EMPTY_STRING)
     }
 
-    override suspend fun wasStoreAlreadyConcluded(): Boolean {
-        return postalCodeRepository.getCount() > 0
+    override fun wasStoreAlreadyConcluded(): Boolean {
+        return sharedPreferencesModel.isRegisterPostalCodeConcluded().apply {
+            "wasStoreAlreadyConcluded $this".log()
+        }
     }
 
     enum class WorkerType {
@@ -107,8 +101,6 @@ class PostalCodeUseCaseImpl @Inject constructor(
 
         val isRunning = isWorkScheduled(notificationString)
 
-        "is $notificationString running =${isRunning}".log()
-
         val id = getPeriodicId(
             periodicWorkRequest.id,
             workerType,
@@ -116,12 +108,7 @@ class PostalCodeUseCaseImpl @Inject constructor(
         )
         return workManager.getWorkInfoByIdLiveData(
             id
-        ).apply {
-            observeForever {
-                "here man $it".log()
-            }
-            "getting state LD=${this} ${periodicWorkRequest.id} $id".log()
-        }
+        )
     }
 
     private fun getPeriodicId(uuid: UUID, workerType: WorkerType, isRunning: Boolean): UUID {
@@ -178,17 +165,14 @@ class PostalCodeUseCaseImpl @Inject constructor(
             val workInfoList: List<WorkInfo?> = statuses.get() ?: arrayListOf<WorkInfo>()
             for (workInfo in workInfoList) {
                 val state = workInfo?.state
-                "$tag $state".log()
                 running = state == WorkInfo.State.RUNNING
             }
             running
         } catch (e: ExecutionException) {
             e.printStackTrace()
-            "${e.message}".log()
             false
         } catch (e: InterruptedException) {
             e.printStackTrace()
-            "${e.message}".log()
             false
         }
     }

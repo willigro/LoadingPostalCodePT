@@ -5,8 +5,6 @@ import android.view.View
 import androidx.work.WorkInfo
 import com.rittmann.androidtools.log.log
 import com.rittmann.common.lifecycle.BaseFragmentBinding
-import com.rittmann.common.workmanager.DOWNLOAD_STATUS_KEY
-import com.rittmann.common.workmanager.DownLoadFileWorkManager
 import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
 import javax.inject.Inject
@@ -26,55 +24,25 @@ class PostalCodeFragment :
     @Inject
     lateinit var viewModel: PostalCodeViewModel
 
-    private var progressStr = ""
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        viewModel.download()
+        viewModel.downloadPostalCodes()
     }
 
     private fun setupObservers() {
         viewModel.apply {
 
             downloadPostalCodeWorkInfo.observe(viewLifecycleOwner) {
-                progressStr += "downloadPostalCodeWorkInfo ${it.state} - ${it.progress.keyValueMap[DOWNLOAD_STATUS_KEY]}\n"
-                when (it.state) {
-                    WorkInfo.State.RUNNING -> {
-                        updateProgressDownloadPostalCodeFile()
-                    }
-                    WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
-                        viewModel.downloadHasFailed()
-                    }
-                    else -> {}
-                }
-
-                if (it.progress.keyValueMap[DOWNLOAD_STATUS_KEY] == DownLoadFileWorkManager.DownloadStatus.DONE.value) {
-                    viewModel.downloadWasConcluded()
-                    updateProgressDownloadPostalCodeFile()
-                }
+                handleDownloadPostalCodeWorkInfo(it)
             }
 
             registerPostalCodeWorkInfo.observe(viewLifecycleOwner) {
-                progressStr += "registerPostalCodeWorkInfo ${it.state} - ${it.progress.keyValueMap[DOWNLOAD_STATUS_KEY]}\n"
-                when (it.state) {
-                    WorkInfo.State.RUNNING -> {
-                        updateProgressRegisterPostalCodeFile()
-                    }
-                    WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
-                        viewModel.storePostalCodeHasFailed()
-                    }
-                    // Triggered when starts and when ends
-                    WorkInfo.State.ENQUEUED -> {
-                        viewModel.checkIfStoreWasConclude()
-                    }
-                    else -> {}
-                }
+                handleRegisterPostalCodeWorkInfo(it)
             }
             downloadWasAlreadyConclude.observe(viewLifecycleOwner) {
                 viewModel.storePostalCode()
-                // TODO update UI
             }
 
             storeWasAlreadyConclude.observe(viewLifecycleOwner) {
@@ -83,12 +51,42 @@ class PostalCodeFragment :
         }
     }
 
+    private fun handleRegisterPostalCodeWorkInfo(it: WorkInfo?) {
+        when (it?.state) {
+            WorkInfo.State.RUNNING -> {
+                updateProgressRegisterPostalCodeFile()
+            }
+            WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                viewModel.storePostalCodeHasFailed()
+            }
+            // Triggered when starts and when ends (PeriodicWorker)
+            WorkInfo.State.ENQUEUED -> {
+                viewModel.storePostalCodeIsEnqueued()
+            }
+            else -> {}
+        }
+    }
+
+    private fun handleDownloadPostalCodeWorkInfo(workInfo: WorkInfo?) {
+        when (workInfo?.state) {
+            WorkInfo.State.RUNNING -> {
+                updateProgressDownloadPostalCodeFile()
+            }
+            WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                viewModel.downloadHasFailed()
+            }
+            // Triggered when starts and when ends (PeriodicWorker)
+            WorkInfo.State.ENQUEUED -> {
+                viewModel.downloadPostalCodeIsEnqueued()
+            }
+            else -> {}
+        }
+    }
+
     // TODO: Refactor it to show something cool
     private fun updateProgressDownloadPostalCodeFile() {
-        binding.progress.text = progressStr
     }
 
     private fun updateProgressRegisterPostalCodeFile() {
-        binding.progress.text = progressStr
     }
 }

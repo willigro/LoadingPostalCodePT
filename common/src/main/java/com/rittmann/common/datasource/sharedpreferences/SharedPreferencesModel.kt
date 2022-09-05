@@ -20,13 +20,13 @@ class SharedPreferencesModel(private val context: Context) {
         getEditor().getString(REGISTER_POSTAL_CODE_NOTIFICATION_ID, EMPTY_STRING) ?: EMPTY_STRING
 
     fun downloadWasConcluded() {
-        getEditor().edit().clear().putBoolean(DOWNLOAD_POSTAL_CODE_CONCLUDED, true).apply()
+        getEditor().edit().putBoolean(DOWNLOAD_POSTAL_CODE_CONCLUDED, true).apply()
     }
 
     fun isDownloadConcluded(): Boolean = getEditor().getBoolean(DOWNLOAD_POSTAL_CODE_CONCLUDED, false)
 
     fun registerPostalCodeWasConcluded() {
-        getEditor().edit().clear().putBoolean(REGISTER_POSTAL_CODE_CONCLUDED, true).apply()
+        getEditor().edit().putBoolean(REGISTER_POSTAL_CODE_CONCLUDED, true).apply()
     }
 
     fun isRegisterPostalCodeConcluded(): Boolean = getEditor().getBoolean(REGISTER_POSTAL_CODE_CONCLUDED, false)
@@ -47,7 +47,7 @@ class SharedPreferencesModel(private val context: Context) {
         private const val EMPTY_JSON = "{}"
         private const val PREFERENCES = "my_preferences_wtest"
         private const val DOWNLOAD_POSTAL_CODE_NOTIFICATION_ID = "DOWNLOAD_POSTAL_CODE_NOTIFICATION_ID"
-        private const val REGISTER_POSTAL_CODE_NOTIFICATION_ID = "DOWNLOAD_POSTAL_CODE_NOTIFICATION_ID"
+        private const val REGISTER_POSTAL_CODE_NOTIFICATION_ID = "REGISTER_POSTAL_CODE_NOTIFICATION_ID"
         private const val DOWNLOAD_POSTAL_CODE_CONCLUDED = "DOWNLOAD_CONCLUDED"
         private const val REGISTER_POSTAL_CODE_CONCLUDED = "REGISTER_CONCLUDED"
         private const val REGISTER_POSTAL_CODE_PERIODIC_ID = "REGISTER_POSTAL_CODE_PERIODIC_ID"

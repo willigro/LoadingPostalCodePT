@@ -13,7 +13,10 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.rittmann.androidtools.log.log
 import com.rittmann.common.R
+import com.rittmann.common.constants.EMPTY_STRING
+import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
 import com.rittmann.common.mappers.lineStringFromCsvToPostalCodeList
 import com.rittmann.common.model.PostalCode
 import com.rittmann.common.repositories.postecode.PostalCodeRepository
@@ -24,10 +27,12 @@ class RegisterPostalCodeWorkManager(
     applicationContext: Context,
     workerParams: WorkerParameters,
     private val postalCodeRepository: PostalCodeRepository,
+    private val sharedPreferencesModel: SharedPreferencesModel
 ) : CoroutineWorker(applicationContext, workerParams) {
 
     class Factory @Inject constructor(
-        private val repository: Provider<PostalCodeRepository>
+        private val repository: Provider<PostalCodeRepository>,
+        private val sharedPreferencesModel: Provider<SharedPreferencesModel>,
     ) : ChildWorkerFactory {
 
         override fun create(appContext: Context, params: WorkerParameters): ListenableWorker {
@@ -35,6 +40,7 @@ class RegisterPostalCodeWorkManager(
                 appContext,
                 params,
                 repository.get(),
+                sharedPreferencesModel.get(),
             )
         }
     }
@@ -77,12 +83,24 @@ class RegisterPostalCodeWorkManager(
                         i++
                         continue
                     }
+                    i++
                     if (i == 40_000) break
                     postalCodes.add(line.lineStringFromCsvToPostalCodeList())
                 }
             }
 
+            "going to keep".log()
             postalCodeRepository.keepPostalCode(postalCodes)
+
+            "went to keep".log()
+            // Check as concluded
+            sharedPreferencesModel.registerPostalCodeWasConcluded()
+
+            "isRegisterPostalCodeConcluded=${sharedPreferencesModel.isRegisterPostalCodeConcluded()}".log()
+
+            // In case of needed, reset the ids to create new notifications and workers
+            sharedPreferencesModel.setRegisterPostalCodePeriodicId(EMPTY_STRING)
+            sharedPreferencesModel.setRegisterPostalCodeNotificationId(EMPTY_STRING)
         }
         return Result.success()
     }
