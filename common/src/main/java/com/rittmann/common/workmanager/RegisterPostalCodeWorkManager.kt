@@ -83,20 +83,14 @@ class RegisterPostalCodeWorkManager(
                         i++
                         continue
                     }
-                    i++
-                    if (i == 40_000) break
                     postalCodes.add(line.lineStringFromCsvToPostalCodeList())
                 }
             }
 
-            "going to keep".log()
             postalCodeRepository.keepPostalCode(postalCodes)
 
-            "went to keep".log()
             // Check as concluded
             sharedPreferencesModel.registerPostalCodeWasConcluded()
-
-            "isRegisterPostalCodeConcluded=${sharedPreferencesModel.isRegisterPostalCodeConcluded()}".log()
 
             // In case of needed, reset the ids to create new notifications and workers
             sharedPreferencesModel.setRegisterPostalCodePeriodicId(EMPTY_STRING)
