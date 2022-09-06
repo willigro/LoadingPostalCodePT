@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.rittmann.common.datasource.local.TablePostalCode
+import com.rittmann.common.extensions.removeAccents
 
 // Using the portuguese name to make easier the reading (for me at least)
 @Entity(tableName = TablePostalCode.TABLE)
@@ -63,5 +64,14 @@ data class PostalCode(
     @ColumnInfo(name = TablePostalCode.DESIG_POSTAL)
     val desgiPostal: String,
 ) {
+
+
+    @ColumnInfo(name = TablePostalCode.NOME_LOCALIDADE_NORMALIZED)
+    var nameLocalidadeNormalized: String = ""
+
+    init {
+        nameLocalidadeNormalized = nameLocalidade.removeAccents()
+    }
+
     fun retrievePostalCode(): String = "$numCodPostal-$extCodPostal"
 }

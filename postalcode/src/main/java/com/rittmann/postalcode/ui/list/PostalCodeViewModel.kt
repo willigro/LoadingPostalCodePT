@@ -2,21 +2,25 @@ package com.rittmann.postalcode.ui.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.work.WorkInfo
 import com.rittmann.baselifecycle.livedata.SingleLiveEvent
 import com.rittmann.common.lifecycle.BaseViewModelApp
+import com.rittmann.common.model.PostalCode
 import com.rittmann.common.usecase.postalcode.PostalCodeUseCase
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 
 class PostalCodeViewModel @Inject constructor(
     private val postalUseCase: PostalCodeUseCase
 ) : BaseViewModelApp() {
 
+    private var previous: LiveData<PagingData<PostalCode>>? = null
     private val _storePostalCodeWorkInfo: MediatorLiveData<WorkInfo> = MediatorLiveData()
     val registerPostalCodeWorkInfo: LiveData<WorkInfo> get() = _storePostalCodeWorkInfo
 
@@ -32,7 +36,20 @@ class PostalCodeViewModel @Inject constructor(
     private val progressModelDownload = ProgressPriorityControl.ProgressModel(id = "download")
     private val progressModelRegister = ProgressPriorityControl.ProgressModel(id = "register")
 
-    val pagingSource = postalUseCase.pagingSource().cachedIn(viewModelScope)
+    private val _postalCodes: MediatorLiveData<PagingData<PostalCode>> = MediatorLiveData()
+    val postalCodes: LiveData<PagingData<PostalCode>> = _postalCodes
+
+    fun loadPostalCodes(query: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            previous?.also {
+                _postalCodes.removeSource(it)
+            }
+            previous = postalUseCase.pagingSource(query = query).cachedIn(viewModelScope)
+            _postalCodes.addSource(previous!!) {
+                _postalCodes.value = it
+            }
+        }
+    }
 
     fun downloadPostalCodes() {
         showProgress(progressModelDownload)

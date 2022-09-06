@@ -6,12 +6,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkInfo
+import com.rittmann.common.components.EditTextSearch
 import com.rittmann.common.lifecycle.BaseFragmentBinding
 import com.rittmann.common.viewmodel.viewModelProvider
 import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
 import javax.inject.Inject
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PostalCodeFragment :
@@ -28,8 +28,17 @@ class PostalCodeFragment :
 
         viewModel = viewModelProvider(viewModelFactory)
 
+        setupUi()
         setupObservers()
         viewModel.downloadPostalCodes()
+    }
+
+    private fun setupUi() {
+        EditTextSearch(
+            binding.postalCodeEditFilter
+        ) {
+            viewModel.loadPostalCodes(it)
+        }.start()
     }
 
     private fun setupObservers() {
@@ -62,11 +71,15 @@ class PostalCodeFragment :
             PostalCodeLoadStateAdapter()
         )
 
-        lifecycleScope.launch {
-            viewModel.pagingSource.collectLatest {
-                adapter.submitData(it)
+        viewModel.postalCodes.observe(viewLifecycleOwner) {
+            it?.also {
+                lifecycleScope.launch {
+                    adapter.submitData(it)
+                }
             }
         }
+
+        viewModel.loadPostalCodes("")
     }
 
     private fun handleRegisterPostalCodeWorkInfo(it: WorkInfo?) {

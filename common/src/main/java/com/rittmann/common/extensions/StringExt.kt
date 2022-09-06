@@ -3,7 +3,10 @@ package com.rittmann.common.extensions
 import android.text.Spanned
 import androidx.core.text.HtmlCompat
 import java.math.BigDecimal
+import java.text.Normalizer
 import java.util.concurrent.TimeUnit
+
+private val REGEX_UNACCENT = "\\p{InCombiningDiacriticalMarks}+".toRegex()
 
 fun String.isInt(): Boolean {
     return try {
@@ -112,4 +115,9 @@ fun String.containsCount(c: Char): Int {
         if (it == c) count++
     }
     return count
+}
+
+fun CharSequence.removeAccents(): String {
+    val temp = Normalizer.normalize(this, Normalizer.Form.NFD)
+    return REGEX_UNACCENT.replace(temp, "")
 }

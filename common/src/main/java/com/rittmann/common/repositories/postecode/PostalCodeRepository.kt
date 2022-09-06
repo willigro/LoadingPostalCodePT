@@ -1,8 +1,10 @@
 package com.rittmann.common.repositories.postecode
 
+import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.rittmann.androidtools.log.log
 import com.rittmann.common.datasource.local.PostalCodeDao
 import com.rittmann.common.model.PostalCode
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 interface PostalCodeRepository {
     fun keepPostalCode(postalCodes: List<PostalCode>)
     fun getCount(): Int
-    fun pagingSource(): Flow<PagingData<PostalCode>>
+    fun pagingSource(query: String): LiveData<PagingData<PostalCode>>
 }
 
 class PostalCodeRepositoryImpl @Inject constructor(
@@ -29,13 +31,13 @@ class PostalCodeRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun pagingSource() = Pager(
+    override fun pagingSource(query: String) = Pager(
         PagingConfig(
             pageSize = 20,
             enablePlaceholders = false,
             initialLoadSize = 20
         ),
     ) {
-        PostalCodePagingSource(postalCodeDao)
-    }.flow
+        PostalCodePagingSource(postalCodeDao, query)
+    }.liveData
 }

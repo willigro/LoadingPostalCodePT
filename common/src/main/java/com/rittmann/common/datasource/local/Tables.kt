@@ -7,6 +7,7 @@ object TablePostalCode {
     const val COD_CONCELHO = "cod_concelho"
     const val COD_LOCALIDADE = "cod_localidade"
     const val NOME_LOCALIDADE = "nome_localidade"
+    const val NOME_LOCALIDADE_NORMALIZED = "nome_localidade_normalized"
     const val COD_ARTERIA = "cod_arteria"
     const val TIPO_ARTERIA = "tipo_arteria"
     const val PREP_1 = "prep1"

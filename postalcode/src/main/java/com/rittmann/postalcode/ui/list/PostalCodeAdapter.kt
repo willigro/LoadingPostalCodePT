@@ -35,6 +35,6 @@ class PostalCodeAdapter : PagingDataAdapter<PostalCode, PostalCodeAdapter.Postal
     override fun onBindViewHolder(holder: PostalCodeViewHolder, position: Int) {
         val item = getItem(position)
 
-        holder.textNumber.text = item?.retrievePostalCode()
+        holder.textNumber.text = "${item?.retrievePostalCode()} - ${item?.nameLocalidade}"
     }
 }
