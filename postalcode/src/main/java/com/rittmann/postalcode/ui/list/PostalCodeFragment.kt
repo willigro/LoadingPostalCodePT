@@ -41,6 +41,11 @@ class PostalCodeFragment :
         ) {
             viewModel.loadPostalCodes(it)
         }.start()
+
+        binding.clearFilter.setOnClickListener {
+            // it's clearing and reloading even when the query was already cleared, maybe i'll change it
+            binding.postalCodeEditFilter.setText("")
+        }
     }
 
     private fun setupObservers() {
