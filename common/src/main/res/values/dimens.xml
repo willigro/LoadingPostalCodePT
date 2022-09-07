@@ -2,4 +2,8 @@
 <resources>
     <!-- Paddings -->
     <dimen name="padding_default_clickable">10dp</dimen>
+    <dimen name="padding_default">8dp</dimen>
+
+    <!-- Postal Code Adapter -->
+    <dimen name="postal_code_number_text_min_width">70dp</dimen>
 </resources>

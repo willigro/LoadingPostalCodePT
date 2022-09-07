@@ -3,4 +3,7 @@
 
     <!-- Postal code -->
     <string name="postal_code_clear_query">Clear</string>
+
+    <!-- Postal code adapter -->
+    <string name="postal_code_adapter_postal_number" formatted="true">%s-%s</string>
 </resources>

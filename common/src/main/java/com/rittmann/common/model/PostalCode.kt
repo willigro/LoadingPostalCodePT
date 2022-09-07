@@ -72,6 +72,4 @@ data class PostalCode(
     init {
         nameLocalidadeNormalized = nameLocalidade.removeAccents()
     }
-
-    fun retrievePostalCode(): String = "$numCodPostal-$extCodPostal"
 }
