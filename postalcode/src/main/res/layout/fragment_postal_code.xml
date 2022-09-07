@@ -21,8 +21,8 @@
             style="@style/Clickable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Clear"
+            android:padding="@dimen/padding_default_clickable"
+            android:text="@string/postal_code_clear_query"
             app:layout_constraintBottom_toBottomOf="@id/postal_code_edit_filter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/postal_code_edit_filter" />
