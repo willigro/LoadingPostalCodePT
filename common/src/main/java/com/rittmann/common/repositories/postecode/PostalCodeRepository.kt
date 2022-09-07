@@ -9,7 +9,6 @@ import com.rittmann.androidtools.log.log
 import com.rittmann.common.datasource.local.PostalCodeDao
 import com.rittmann.common.model.PostalCode
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
 
 interface PostalCodeRepository {
     fun keepPostalCode(postalCodes: List<PostalCode>)

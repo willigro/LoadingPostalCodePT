@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 class PostalCodeFragment :
     BaseFragmentBinding<FragmentPostalCodeBinding>(R.layout.fragment_postal_code) {
 
+    private var adapter: PostalCodeAdapter? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -66,15 +68,15 @@ class PostalCodeFragment :
     }
 
     private fun setupPostalCodeList() {
-        val adapter = PostalCodeAdapter()
-        binding.postalCodeRecycler.adapter = adapter.withLoadStateFooter(
+        adapter = PostalCodeAdapter()
+        binding.postalCodeRecycler.adapter = adapter?.withLoadStateFooter(
             PostalCodeLoadStateAdapter()
         )
 
         viewModel.postalCodes.observe(viewLifecycleOwner) {
             it?.also {
                 lifecycleScope.launch {
-                    adapter.submitData(it)
+                    adapter?.submitData(it)
                 }
             }
         }
