@@ -83,15 +83,16 @@ object Depends {
         }
 
         fun DependencyHandler.implementLocalRobbie() {
-            implement("com.rittmann:buttons:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:typography:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:widgets:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:textfield:${Versions.ROBBIE_LOCAL}")
-            // see why it broken later
-//            implement("com.rittmann:sqltools:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:core:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:baselifecycle:${Versions.ROBBIE_LOCAL}")
-            implement("com.rittmann:androidtools:${Versions.ROBBIE_LOCAL}")
+            val baseRemote = "com.github.willigro.RobbieAndroidUtil"
+//            val baseLocal = "com.rittmann"
+            implement("$baseRemote:buttons:${Versions.ROBBIE}")
+            implement("$baseRemote:typography:${Versions.ROBBIE}")
+            implement("$baseRemote:widgets:${Versions.ROBBIE}")
+            implement("$baseRemote:textfield:${Versions.ROBBIE}")
+//            implement("$baseRemote:sqltools:${Versions.ROBBIE}")
+            implement("$baseRemote:core:${Versions.ROBBIE}")
+            implement("$baseRemote:baselifecycle:${Versions.ROBBIE}")
+            implement("$baseRemote:androidtools:${Versions.ROBBIE}")
         }
     }
 
