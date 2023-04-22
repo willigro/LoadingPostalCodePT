@@ -32,7 +32,7 @@ object Versions {
     const val MATERIAL = "1.4.0"
 
     // Test
-    const val ANDROID_X_TEST_CORE = "1.3.0"
+    const val ANDROID_X_TEST_CORE = "1.4.0"
     const val JUNIT = "4.+"
     const val JUNIT_EXT = "1.1.3"
     const val ARCH_TESTING = "2.1.0"

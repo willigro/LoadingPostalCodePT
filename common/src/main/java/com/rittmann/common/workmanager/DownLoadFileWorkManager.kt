@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -28,7 +29,8 @@ val POSTAL_CODE_FILE_PATH =
     "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv"
 
 const val POSTAL_CODE_URL =
-    "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
+//    "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
+    "http://10.0.0.104:8080/files/postalcodes.csv"
 
 // TODO Refactor it
 class DownLoadFileWorkManager(
@@ -45,6 +47,7 @@ class DownLoadFileWorkManager(
             appContext: Context,
             params: WorkerParameters
         ): ListenableWorker {
+            Log.i("TESTING" ,"DownLoadFileWorkManager create")
             return DownLoadFileWorkManager(
                 appContext,
                 params,
@@ -69,9 +72,12 @@ class DownLoadFileWorkManager(
         } else {
             ""
         }
+        Log.i("TESTING" ,"DownLoadFileWorkManager channelId=$channelId")
     }
 
     override suspend fun doWork(): Result {
+        Log.i("TESTING" ,"DownLoadFileWorkManager doWork")
+
         setForeground(
             ForegroundInfo(notificationId, createNotification())
         )
@@ -91,7 +97,9 @@ class DownLoadFileWorkManager(
                 .url(POSTAL_CODE_URL)
                 .build()
 
-        runCatching {
+        Log.i("TESTING" ,"making request POSTAL_CODE_URL=$POSTAL_CODE_URL")
+
+        return try {
             val response = okHttpClient.newCall(request).execute()
             val body = response.body
             val responseCode = response.code
@@ -100,6 +108,7 @@ class DownLoadFileWorkManager(
                 responseCode < HttpURLConnection.HTTP_MULT_CHOICE &&
                 body != null
             ) {
+                Log.i("TESTING" ,"responseCode=$responseCode")
                 body.byteStream().apply {
                     val file = File(POSTAL_CODE_FILE_PATH)
                     file.createNewFile()
@@ -122,11 +131,17 @@ class DownLoadFileWorkManager(
                     }
 
                 }
+                Result.success()
             } else {
+                Log.i("TESTING" ,"Error responseCode=${response.code}, message=${response.message}, body=${response.body}")
                 // Report the error
+                Result.failure()
             }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            Log.i("TESTING" ,"Error e=${e.message}")
+            Result.failure()
         }
-        return Result.success()
     }
 
     /**
@@ -134,6 +149,7 @@ class DownLoadFileWorkManager(
      * in a foreground service.
      */
     private fun createNotification(): Notification {
+        Log.i("TESTING" ,"DownLoadFileWorkManager createNotification")
         val cancelPendingIntent =
             WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
 
@@ -171,6 +187,7 @@ class DownLoadFileWorkManager(
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         notificationManager.createNotificationChannel(chan)
+        Log.i("TESTING" ,"DownLoadFileWorkManager createNotificationChannel $channelId")
         return channelId
     }
 
