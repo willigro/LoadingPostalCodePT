@@ -1,3 +1,6 @@
+Refactor permission
+    Show a previous screen explain why I need it
+    Open settings (request) when the permission are denied
 Connection check
 progress
 method tracker
