@@ -1,5 +1,5 @@
 import Depends.AndroidTest.implementEspressoTest
-import Depends.Dagger.implementDagger
+import Depends.Hilt.implementHilt
 import Depends.Kotlin.implementKotlinForModule
 import Depends.Retrofit.implementRetrofit
 import Depends.Robbie.implementRobbie
@@ -14,6 +14,10 @@ android {
     }
 }
 
+plugins {
+    id(Depends.Plugins.HILT)
+}
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
@@ -26,8 +30,8 @@ dependencies {
     // =========== ViewModel ==============
     implementViewModel()
 
-    // =========== Dagger ==============
-    implementDagger()
+    // =========== Hilt ==============
+    implementHilt()
 
     // =========== Robbie ==============
     implementRobbie()

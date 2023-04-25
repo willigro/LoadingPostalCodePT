@@ -7,19 +7,21 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
 import com.rittmann.common.navigation.CloseScreen
 import com.rittmann.common.navigation.NavigationEvent
-import dagger.android.support.DaggerAppCompatDialogFragment
 
 const val FRAGMENT_RESULT_KEY = "RESULT_KEY"
 const val FRAGMENT_RESULT_CODE = "RESULT_CODE"
 
 const val FRAGMENT_EXIT_CODE = 1
 
-abstract class BaseFragmentBinding<T : ViewDataBinding>(
-    private val resId: Int,
-    private val resIdContainer: Int = -1
-) : DaggerAppCompatDialogFragment() {
+
+abstract class BaseFragmentBinding<T : ViewDataBinding> : Fragment() {
+
+    abstract val resId: Int
+
+    val resIdContainer: Int = -1
 
     protected lateinit var binding: T
 

@@ -75,6 +75,9 @@ object Depends {
         }
     }
 
+    /*
+    * TODO remove it, im not maintaining it, and I want to update the dependencies here
+    * */
     object Robbie {
         fun DependencyHandler.implementRobbie() {
 //            implement("com.github.willigro:RobbieAndroidUtil:${Versions.ROBBIE}")
@@ -112,12 +115,6 @@ object Depends {
                 IMPLEMENTATION,
                 "androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINT_LAYOUT}"
             )
-        }
-    }
-
-    object IdlingResource {
-        fun DependencyHandler.implementIdling() {
-            implement("androidx.test.espresso:espresso-idling-resource:${Versions.ESPRESSO}")
         }
     }
 
@@ -214,33 +211,58 @@ object Depends {
         }
     }
 
-    object Dagger {
-        fun DependencyHandler.implementDagger() {
-            kapt("com.google.dagger:dagger-android-support:${Versions.DAGGER}")
-            kapt("com.google.dagger:dagger-compiler:${Versions.DAGGER}")
-            kapt("com.google.dagger:dagger-android-processor:${Versions.DAGGER}")
-
-            annotationProcessor("com.google.dagger:dagger-android-processor:${Versions.DAGGER}")
-            annotationProcessor("com.google.dagger:dagger-compiler:${Versions.DAGGER}")
-
-            implement("com.google.dagger:dagger:${Versions.DAGGER}")
-            implement("com.google.dagger:dagger-android:${Versions.DAGGER}")
-            implement("com.google.dagger:dagger-android-support:${Versions.DAGGER}")
+    object Hilt {
+        fun DependencyHandler.implementHilt() {
+            implement("com.google.dagger:hilt-android:${Versions.HILT}")
+            implement("androidx.hilt:hilt-work:${Versions.HILT_WORK_MANAGER}")
+            implement("androidx.hilt:hilt-compiler:${Versions.HILT_WORK_MANAGER}")
+            kapt("com.google.dagger:hilt-compiler:${Versions.HILT}")
+            implement("com.google.guava:guava:31.0.1-android")
+            implement("androidx.startup:startup-runtime:1.1.1")
         }
     }
 
     object ViewModel {
         fun DependencyHandler.implementViewModel() {
-            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.VIEWMODEL}")
-            implement("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.VIEWMODEL}")
-        }
-    }
+            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.LIFECYCLE}")
+            implement("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
 
-    object Navigation {
-        fun DependencyHandler.implementNavigation() {
-//            implement("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
-//            implement("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
-//            implement("androidx.navigation:navigation-dynamic-features-fragment:${Versions.NAVIGATION}")
+//            val lifecycle_version = Versions.LIFECYCLE
+//            val arch_version = Versions.LIFECYCLE_ARCH
+
+            // ViewModel
+//            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+//            // ViewModel utilities for Compose
+//            implement("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+//            // LiveData
+//            implement("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+//            // Lifecycles only (without ViewModel or LiveData)
+//            implement("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
+//            // Lifecycle utilities for Compose
+//            implement("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
+//
+//            // Saved state module for ViewModel
+//            implement("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
+//
+//            // Annotation processor
+//            kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
+//            // alternately - if using Java8, use the following instead of lifecycle-compiler
+//            implement("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
+//
+//            // optional - helpers for implementing LifecycleOwner in a Service
+//            implement("androidx.lifecycle:lifecycle-service:$lifecycle_version")
+//
+//            // optional - ProcessLifecycleOwner provides a lifecycle for the whole application process
+//            implement("androidx.lifecycle:lifecycle-process:$lifecycle_version")
+//
+//            // optional - ReactiveStreams support for LiveData
+//            implement("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
+//
+//            // optional - Test helpers for LiveData
+//            testImplement("androidx.arch.core:core-testing:$arch_version")
+//
+//            // optional - Test helpers for Lifecycle runtime
+//            testImplement("androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version")
         }
     }
 
@@ -249,18 +271,6 @@ object Depends {
             val kapt = "androidx.databinding:databinding-compiler:7.1.3"
             implement(kapt)
             kaptAndroidTest(kapt)
-        }
-    }
-
-    object LegacySupport {
-        fun DependencyHandler.implementLegacySupport() {
-            implement("androidx.legacy:legacy-support-v4:1.0.0")
-        }
-    }
-
-    object Tags {
-        fun DependencyHandler.implementTags() {
-            implement("co.lujun:androidtagview:1.1.7")
         }
     }
 
@@ -273,17 +283,30 @@ object Depends {
         }
     }
 
-    object Glide {
-        fun DependencyHandler.implementGlide() {
-            implement("com.github.bumptech.glide:glide:${Versions.GLIDE}")
-            annotationProcessor("com.github.bumptech.glide:compiler:${Versions.GLIDE}")
-        }
-    }
-
     object Worker {
         fun DependencyHandler.implementWorker() {
             implement("androidx.work:work-runtime:2.7.1")
             implement("androidx.work:work-runtime-ktx:2.7.1")
+        }
+    }
+
+    object Plugins {
+        // "dagger.hilt.android.plugin"
+        const val HILT = "com.google.dagger.hilt.android"
+        const val CLASS_PATH_HILT =
+            "com.google.dagger:hilt-android-gradle-plugin:${Versions.HILT_PLUGIN}"
+    }
+
+    object Fragment {
+        fun DependencyHandler.implementFragmentKtx() {
+            implement("androidx.fragment:fragment-ktx:${Versions.FRAGMENT_KTX}")
+            implement("androidx.activity:activity-ktx:1.5.0")
+            implement("androidx.navigation:navigation-compose:2.5.1")
+
+            val lifecycle = "2.3.1"
+            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:${lifecycle}")
+            implement("androidx.lifecycle:lifecycle-livedata-ktx:${lifecycle}")
+//            implement("androidx.fragment:fragment-ktx:${Versions.FRAGMENT_KTX}")
         }
     }
 }

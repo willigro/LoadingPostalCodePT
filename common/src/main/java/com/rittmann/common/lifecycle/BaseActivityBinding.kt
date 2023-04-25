@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -20,7 +21,6 @@ import com.rittmann.common.extensions.toast
 import com.rittmann.common.navigation.ScreenNavigator
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import com.rittmann.widgets.progress.ProgressVisibleControl
-import dagger.android.support.DaggerAppCompatActivity
 
 
 // Storage Permissions
@@ -32,7 +32,7 @@ private val PERMISSIONS_STORAGE = mutableListOf(
 )
 
 abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) :
-    DaggerAppCompatActivity(), FragmentResultListener {
+    AppCompatActivity(), FragmentResultListener {
 
     private val progressPriorityControl: ProgressPriorityControl = ProgressPriorityControl()
 

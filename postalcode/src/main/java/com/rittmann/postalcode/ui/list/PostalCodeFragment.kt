@@ -2,33 +2,27 @@ package com.rittmann.postalcode.ui.list
 
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkInfo
 import com.rittmann.common.components.EditTextSearch
 import com.rittmann.common.lifecycle.BaseFragmentBinding
-import com.rittmann.common.viewmodel.viewModelProvider
 import com.rittmann.postalcode.R
 import com.rittmann.postalcode.databinding.FragmentPostalCodeBinding
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-class PostalCodeFragment :
-    BaseFragmentBinding<FragmentPostalCodeBinding>(R.layout.fragment_postal_code) {
+@AndroidEntryPoint
+class PostalCodeFragment : BaseFragmentBinding<FragmentPostalCodeBinding>() {
+
+    override val resId: Int = R.layout.fragment_postal_code
 
     private var adapter: PostalCodeAdapter? = null
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    @VisibleForTesting
-    lateinit var viewModel: PostalCodeViewModel
+    private val viewModel: PostalCodeViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel = viewModelProvider(viewModelFactory)
 
         setupUi()
         setupObservers()
@@ -111,7 +105,9 @@ class PostalCodeFragment :
             WorkInfo.State.ENQUEUED -> {
                 viewModel.downloadPostalCodeIsEnqueued()
             }
-            else -> {}
+            else -> {
+                viewModel.downloadPostalCodeIsRunning()
+            }
         }
     }
 }

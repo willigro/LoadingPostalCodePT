@@ -9,14 +9,18 @@ import android.os.Build
 import android.os.Environment
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
 import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.rittmann.common.R
 import com.rittmann.common.constants.EMPTY_STRING
 import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import java.io.File
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
@@ -25,36 +29,21 @@ import javax.inject.Provider
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+// TODO: create a named
 val POSTAL_CODE_FILE_PATH =
     "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/testingPostalCode.csv"
 
+// TODO: create a named
 const val POSTAL_CODE_URL =
 //    "https://raw.githubusercontent.com/centraldedados/codigos_postais/master/data/codigos_postais.csv"
     "http://10.0.0.104:8080/files/postalcodes.csv"
 
-// TODO Refactor it
-class DownLoadFileWorkManager(
-    applicationContext: Context,
-    workerParams: WorkerParameters,
+@HiltWorker
+class DownLoadFileWorkManager @AssistedInject constructor(
+    @Assisted applicationContext: Context,
+    @Assisted workerParams: WorkerParameters,
     private val sharedPreferencesModel: SharedPreferencesModel
-) :
-    CoroutineWorker(applicationContext, workerParams) {
-
-    class Factory @Inject constructor(
-        private val sharedPreferencesModel: Provider<SharedPreferencesModel>
-    ) : ChildWorkerFactory {
-        override fun create(
-            appContext: Context,
-            params: WorkerParameters
-        ): ListenableWorker {
-            Log.i("TESTING" ,"DownLoadFileWorkManager create")
-            return DownLoadFileWorkManager(
-                appContext,
-                params,
-                sharedPreferencesModel.get(),
-            )
-        }
-    }
+) : CoroutineWorker(applicationContext, workerParams) {
 
     private val notificationId = 123
     private val notificationManager =
@@ -72,11 +61,11 @@ class DownLoadFileWorkManager(
         } else {
             ""
         }
-        Log.i("TESTING" ,"DownLoadFileWorkManager channelId=$channelId")
+        Log.i("TESTING", "DownLoadFileWorkManager channelId=$channelId")
     }
 
     override suspend fun doWork(): Result {
-        Log.i("TESTING" ,"DownLoadFileWorkManager doWork")
+        Log.i("TESTING", "DownLoadFileWorkManager doWork")
 
         setForeground(
             ForegroundInfo(notificationId, createNotification())
@@ -97,7 +86,7 @@ class DownLoadFileWorkManager(
                 .url(POSTAL_CODE_URL)
                 .build()
 
-        Log.i("TESTING" ,"making request POSTAL_CODE_URL=$POSTAL_CODE_URL")
+        Log.i("TESTING", "making request POSTAL_CODE_URL=$POSTAL_CODE_URL")
 
         return try {
             val response = okHttpClient.newCall(request).execute()
@@ -108,7 +97,7 @@ class DownLoadFileWorkManager(
                 responseCode < HttpURLConnection.HTTP_MULT_CHOICE &&
                 body != null
             ) {
-                Log.i("TESTING" ,"responseCode=$responseCode")
+                Log.i("TESTING", "responseCode=$responseCode")
                 body.byteStream().apply {
                     val file = File(POSTAL_CODE_FILE_PATH)
                     file.createNewFile()
@@ -133,13 +122,16 @@ class DownLoadFileWorkManager(
                 }
                 Result.success()
             } else {
-                Log.i("TESTING" ,"Error responseCode=${response.code}, message=${response.message}, body=${response.body}")
+                Log.i(
+                    "TESTING",
+                    "Error responseCode=${response.code}, message=${response.message}, body=${response.body}"
+                )
                 // Report the error
                 Result.failure()
             }
         } catch (e: Throwable) {
             e.printStackTrace()
-            Log.i("TESTING" ,"Error e=${e.message}")
+            Log.i("TESTING", "Error e=${e.message}")
             Result.failure()
         }
     }
@@ -149,7 +141,7 @@ class DownLoadFileWorkManager(
      * in a foreground service.
      */
     private fun createNotification(): Notification {
-        Log.i("TESTING" ,"DownLoadFileWorkManager createNotification")
+        Log.i("TESTING", "DownLoadFileWorkManager createNotification")
         val cancelPendingIntent =
             WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
 
@@ -187,7 +179,7 @@ class DownLoadFileWorkManager(
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         notificationManager.createNotificationChannel(chan)
-        Log.i("TESTING" ,"DownLoadFileWorkManager createNotificationChannel $channelId")
+        Log.i("TESTING", "DownLoadFileWorkManager createNotificationChannel $channelId")
         return channelId
     }
 

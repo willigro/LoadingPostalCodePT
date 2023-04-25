@@ -1,19 +1,22 @@
-package com.rittmann.wtest
+package com.rittmann.wtest.main
 
 import android.os.Bundle
+import androidx.fragment.app.activityViewModels
+import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import com.rittmann.common.extensions.gone
 import com.rittmann.common.extensions.visible
 import com.rittmann.common.lifecycle.BaseBindingActivity
 import com.rittmann.common.liveevent.ConsumerObserver
 import com.rittmann.widgets.dialog.modal
+import com.rittmann.wtest.R
 import com.rittmann.wtest.databinding.ActivityMainBinding
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_main) {
 
-    @Inject
-    lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
 
     override val screenHolder: Int = R.id.main_container
 

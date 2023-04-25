@@ -2,6 +2,7 @@ package com.rittmann.common.liveevent
 
 import androidx.lifecycle.Observer
 
+
 /**
  * An [Observer] for [Event]s that will consume the event when it gets called.
  *
@@ -9,9 +10,7 @@ import androidx.lifecycle.Observer
  */
 class ConsumerObserver<T>(private val onEventToConsume: (T) -> Unit) : Observer<Event<T>> {
 
-    override fun onChanged(event: Event<T>?) {
-        if (event == null) return
-
+    override fun onChanged(event: Event<T>) {
         event as ConsumableEvent
 
         if (!event.hasBeenConsumed) {

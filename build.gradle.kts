@@ -13,7 +13,12 @@ buildscript {
         classpath(Depends.Gradle.getGradlePlugin())
         classpath(Depends.Kotlin.getKotlin())
         classpath(Depends.Kotlin.getKotlinExtensions())
+        classpath(Depends.Plugins.CLASS_PATH_HILT)
     }
+}
+
+plugins {
+    id(Depends.Plugins.HILT) version Versions.HILT_PLUGIN apply false
 }
 
 allprojects {
@@ -36,7 +41,6 @@ fun Project.androidCompile() {
 
     val isApplication = if (":$name" == Modules.app) {
         apply(plugin = "com.android.application")
-//        apply(plugin = "com.google.gms.google-services")
         true
     } else {
         apply(plugin = "com.android.library")
@@ -45,7 +49,6 @@ fun Project.androidCompile() {
 
     apply(plugin = "kotlin-parcelize")
     apply(plugin = "kotlin-android")
-//    apply(plugin = "kotlin-android-extensions")
     apply(plugin = "kotlin-kapt")
 
     configure<BaseExtension> {
@@ -98,6 +101,7 @@ fun Project.androidCompile() {
             exclude("META-INF/ASL2.0")
             exclude("META-INF/*")
             exclude("META-INF/*.kotlin_module")
+            exclude("META-INF/gradle/incremental.annotation.processors")
         }
     }
 }

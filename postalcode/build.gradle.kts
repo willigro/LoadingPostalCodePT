@@ -1,6 +1,7 @@
 import Depends.AndroidTest.implementEspressoTest
-import Depends.Dagger.implementDagger
+import Depends.Hilt.implementHilt
 import Depends.Databinding.implementDatabinding
+import Depends.Fragment.implementFragmentKtx
 import Depends.Kotlin.implementKotlinForModule
 import Depends.Module.implementModules
 import Depends.Retrofit.implementRetrofit
@@ -12,7 +13,9 @@ import Depends.Worker.implementWorker
 
 plugins {
     id("org.jetbrains.kotlin.android")
+    id(Depends.Plugins.HILT)
 }
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.paging:paging-runtime-ktx:3.0.0")
@@ -23,6 +26,9 @@ dependencies {
     // =========== Kotlin ==============
     implementKotlinForModule()
 
+    // =========== Fragment ==============
+    implementFragmentKtx()
+
     // =========== AppCompat ==============
     implementation(Depends.AppCompat.getAppcompat())
 
@@ -30,7 +36,7 @@ dependencies {
     implementViewModel()
 
     // =========== Dagger ==============
-    implementDagger()
+    implementHilt()
 
     // =========== Robbie ==============
     implementRobbie()

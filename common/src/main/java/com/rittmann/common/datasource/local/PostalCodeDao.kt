@@ -8,7 +8,6 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.rittmann.common.model.PostalCode
-import java.util.*
 
 @Dao
 interface PostalCodeDao {

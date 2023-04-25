@@ -7,43 +7,28 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.rittmann.androidtools.log.log
 import com.rittmann.common.R
 import com.rittmann.common.constants.EMPTY_STRING
 import com.rittmann.common.datasource.sharedpreferences.SharedPreferencesModel
 import com.rittmann.common.mappers.lineStringFromCsvToPostalCodeList
 import com.rittmann.common.model.PostalCode
 import com.rittmann.common.repositories.postecode.PostalCodeRepository
-import javax.inject.Inject
-import javax.inject.Provider
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class RegisterPostalCodeWorkManager(
-    applicationContext: Context,
-    workerParams: WorkerParameters,
+@HiltWorker
+class RegisterPostalCodeWorkManager @AssistedInject constructor(
+    @Assisted applicationContext: Context,
+    @Assisted workerParams: WorkerParameters,
     private val postalCodeRepository: PostalCodeRepository,
     private val sharedPreferencesModel: SharedPreferencesModel
 ) : CoroutineWorker(applicationContext, workerParams) {
-
-    class Factory @Inject constructor(
-        private val repository: Provider<PostalCodeRepository>,
-        private val sharedPreferencesModel: Provider<SharedPreferencesModel>,
-    ) : ChildWorkerFactory {
-
-        override fun create(appContext: Context, params: WorkerParameters): ListenableWorker {
-            return RegisterPostalCodeWorkManager(
-                appContext,
-                params,
-                repository.get(),
-                sharedPreferencesModel.get(),
-            )
-        }
-    }
 
     private val notificationId = 456
     private val notificationManager =

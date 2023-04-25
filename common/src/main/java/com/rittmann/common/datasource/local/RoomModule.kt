@@ -5,9 +5,12 @@ import androidx.room.Room
 import com.rittmann.common.BuildConfig
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class RoomModule {
 
     @Singleton

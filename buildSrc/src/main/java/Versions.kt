@@ -60,24 +60,22 @@ object Versions {
     const val ROOM = "2.4.2"
 
     // Fragment
-    const val FRAGMENT = "1.3.4"
-    const val FRAGMENT_KTX = "1.3.4"
+    const val FRAGMENT = "1.5.0"
+    const val FRAGMENT_KTX = "1.5.0"
 
-    // Dagger
-    const val DAGGER = "2.24"
+    // Hilt
+    const val HILT = "2.44.2"
+    const val HILT_PLUGIN = "2.44"
+    const val HILT_WORK_MANAGER = "1.0.0"
 
-    // ViewModel
-    const val VIEWMODEL = "2.4.0"
-
-    // Navigation
-    const val NAVIGATION = "2.3.0"
+    // LIFECYCLE
+    const val LIFECYCLE = "2.4.0"
+//    const val LIFECYCLE = "2.6.1"
+//    const val LIFECYCLE_ARCH = "2.2.0"
 
     // Retrofit
     const val RETROFIT = "2.9.0"
     const val RETROFIT_GSON_CONVERTER = "2.5.0"
     const val GOOGLE_GSON = "2.8.6"
     const val SQUAREUP_OK_HTTP_3_LOGGING_INTERCEPTOR = "4.2.1"
-
-    // Glide
-    const val GLIDE = "4.13.2"
 }

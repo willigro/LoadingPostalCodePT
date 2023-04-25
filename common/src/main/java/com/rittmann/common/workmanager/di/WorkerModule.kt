@@ -1,7 +1,8 @@
 package com.rittmann.common.workmanager.di
 
-import android.app.Application
-import androidx.work.ListenableWorker
+import android.content.Context
+import androidx.startup.Initializer
+import androidx.work.Configuration
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import com.rittmann.common.workmanager.ChildWorkerFactory
@@ -9,40 +10,28 @@ import com.rittmann.common.workmanager.DaggerWorkerFactory
 import com.rittmann.common.workmanager.DownLoadFileWorkManager
 import com.rittmann.common.workmanager.RegisterPostalCodeWorkManager
 import dagger.Binds
-import dagger.MapKey
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import kotlin.reflect.KClass
+import javax.inject.Singleton
 
-@MapKey
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class WorkerKey(val value: KClass<out ListenableWorker>)
-
-@Module
-interface WorkerModule {
-
-    @Module
-    companion object {
-
-        @Provides
-        @JvmStatic
-        fun providesWorkManager(application: Application): WorkManager {
-            return WorkManager.getInstance(application)
-        }
-    }
-
-    @Binds
-    fun bindWorkManagerFactory(factory: DaggerWorkerFactory): WorkerFactory
-
-    @Binds
-    @IntoMap
-    @WorkerKey(RegisterPostalCodeWorkManager::class)
-    fun bindRegisterPostalCodeWorkManager(factory: RegisterPostalCodeWorkManager.Factory): ChildWorkerFactory
-
-    @Binds
-    @IntoMap
-    @WorkerKey(DownLoadFileWorkManager::class)
-    fun bindDownLoadFileWorkManager(factory: DownLoadFileWorkManager.Factory): ChildWorkerFactory
-}
+//@Module
+//@InstallIn(SingletonComponent::class)
+//object WorkerModule : Initializer<WorkManager> {
+//
+//    @Provides
+//    @Singleton
+//    override fun create(@ApplicationContext context: Context): WorkManager {
+//        val configuration = Configuration.Builder().build()
+//        WorkManager.initialize(context, configuration)
+//        return WorkManager.getInstance(context)
+//    }
+//
+//    override fun dependencies(): List<Class<out Initializer<*>>> {
+//        // No dependencies on other libraries.
+//        return emptyList()
+//    }
+//}

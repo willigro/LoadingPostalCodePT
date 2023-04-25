@@ -1,5 +1,6 @@
 package com.rittmann.postalcode.ui.list
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,10 +12,12 @@ import com.rittmann.common.lifecycle.BaseViewModelApp
 import com.rittmann.common.model.PostalCode
 import com.rittmann.common.usecase.postalcode.PostalCodeUseCase
 import com.rittmann.widgets.progress.ProgressPriorityControl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@HiltViewModel
 class PostalCodeViewModel @Inject constructor(
     private val postalUseCase: PostalCodeUseCase
 ) : BaseViewModelApp() {
@@ -60,6 +63,7 @@ class PostalCodeViewModel @Inject constructor(
         }
 
         _downloadPostalCodeWorkInfo.addSource(postalUseCase.downloadPostalCodes()) {
+            Log.i("TESTING", "UPDATING_LIVE_DATA $it")
             _downloadPostalCodeWorkInfo.value = it
         }
     }
@@ -68,6 +72,13 @@ class PostalCodeViewModel @Inject constructor(
         if (postalUseCase.wasDownloadAlreadyConcluded()) {
             _downloadWasAlreadyConclude.call()
             hideProgress(progressModelDownload)
+        }
+    }
+
+    fun downloadPostalCodeIsRunning() {
+        Log.i("TESTING", "downloadPostalCodeIsRunning progressModelDownload.added=${progressModelDownload.added}")
+        if (postalUseCase.wasDownloadAlreadyConcluded().not()) {
+            showProgress(progressModelDownload)
         }
     }
 
