@@ -1,7 +1,5 @@
 import Depends.AndroidTest.implementEspressoTest
 import Depends.Hilt.implementHilt
-import Depends.Databinding.implementDatabinding
-import Depends.Fragment.implementFragmentKtx
 import Depends.Kotlin.implementKotlinForModule
 import Depends.Module.implementModules
 import Depends.Retrofit.implementRetrofit
@@ -11,23 +9,24 @@ import Depends.Test.implementTest
 import Depends.ViewModel.implementViewModel
 import Depends.Worker.implementWorker
 
+android {
+    buildTypes.forEach {
+        it.buildConfigField("String", "BASE_NAME", "\"wtest.db\"")
+    }
+}
+
 plugins {
-    id("org.jetbrains.kotlin.android")
     id(Depends.Plugins.HILT)
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.paging:paging-runtime-ktx:3.0.0")
 
     // =========== Modules ==============
-    implementModules(Modules.common, Modules.datasource)
+    implementModules(Modules.common)
 
     // =========== Kotlin ==============
     implementKotlinForModule()
-
-    // =========== Fragment ==============
-    implementFragmentKtx()
 
     // =========== AppCompat ==============
     implementation(Depends.AppCompat.getAppcompat())
@@ -35,7 +34,7 @@ dependencies {
     // =========== ViewModel ==============
     implementViewModel()
 
-    // =========== Dagger ==============
+    // =========== Hilt ==============
     implementHilt()
 
     // =========== Robbie ==============
@@ -47,7 +46,6 @@ dependencies {
     // =========== Test ==============
     implementTest()
     implementEspressoTest()
-    // TODO move it
     implementation(Depends.AndroidTest.ESPRESSO_IDLING)
     debugImplementation(Depends.AndroidTest.FRAGMENT_TESTING)
 
@@ -57,12 +55,15 @@ dependencies {
     // =========== Retrofit ==============
     implementRetrofit()
 
-    // TODO move it
+    // TODO move it to retrofit
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-
-    // =========== DataBinding ==============
-    implementDatabinding()
 
     // =========== Worker ==============
     implementWorker()
+
+    implementation ("commons-io:commons-io:2.11.0")
+
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0") //for JVM platform
+
+    implementation("androidx.paging:paging-runtime-ktx:3.0.0")
 }

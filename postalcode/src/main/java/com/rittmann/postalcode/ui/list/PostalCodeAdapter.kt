@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.rittmann.common.model.PostalCode
+import com.rittmann.datasource.model.PostalCode
 import com.rittmann.postalcode.R
 
 // Maybe i'll change it for binding

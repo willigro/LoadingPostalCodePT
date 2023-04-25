@@ -1,7 +1,6 @@
 package com.rittmann.wtest.main
 
 import android.os.Bundle
-import androidx.fragment.app.activityViewModels
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import com.rittmann.common.extensions.gone
@@ -51,7 +50,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
         // TODO: adjust the reference error
         modal(
-            message = getString(R.string.permissions_were_denied_dialog_message),
+            message = getString(com.rittmann.common.R.string.permissions_were_denied_dialog_message),
             ok = true,
             show = true,
             cancelable = true,
@@ -70,7 +69,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
                 visible()
                 // TODO: adjust the reference error
-                text = getString(R.string.permissions_were_denied_and_blocked)
+                text = getString(com.rittmann.common.R.string.permissions_were_denied_and_blocked)
             }
 
             buttonOpenSettings.apply {
