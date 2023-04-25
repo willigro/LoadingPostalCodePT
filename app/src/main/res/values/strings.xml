@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">WTest</string>
-
-    <!-- Main Activity -->
-    <string name="main_activity_open_settings_action">Open Settings</string>
-</resources>

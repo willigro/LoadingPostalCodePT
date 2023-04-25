@@ -9,8 +9,7 @@ import androidx.paging.cachedIn
 import androidx.work.WorkInfo
 import com.rittmann.baselifecycle.livedata.SingleLiveEvent
 import com.rittmann.common.lifecycle.BaseViewModelApp
-import com.rittmann.common.model.PostalCode
-import com.rittmann.common.usecase.postalcode.PostalCodeUseCase
+import com.rittmann.datasource.usecase.postalcode.PostalCodeUseCase
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,7 +21,7 @@ class PostalCodeViewModel @Inject constructor(
     private val postalUseCase: PostalCodeUseCase
 ) : BaseViewModelApp() {
 
-    private var previous: LiveData<PagingData<PostalCode>>? = null
+    private var previous: LiveData<PagingData<com.rittmann.datasource.model.PostalCode>>? = null
     private val _storePostalCodeWorkInfo: MediatorLiveData<WorkInfo> = MediatorLiveData()
     val registerPostalCodeWorkInfo: LiveData<WorkInfo> get() = _storePostalCodeWorkInfo
 
@@ -38,8 +37,8 @@ class PostalCodeViewModel @Inject constructor(
     private val progressModelDownload = ProgressPriorityControl.ProgressModel(id = "download")
     private val progressModelRegister = ProgressPriorityControl.ProgressModel(id = "register")
 
-    private val _postalCodes: MediatorLiveData<PagingData<PostalCode>> = MediatorLiveData()
-    val postalCodes: LiveData<PagingData<PostalCode>> = _postalCodes
+    private val _postalCodes: MediatorLiveData<PagingData<com.rittmann.datasource.model.PostalCode>> = MediatorLiveData()
+    val postalCodes: LiveData<PagingData<com.rittmann.datasource.model.PostalCode>> = _postalCodes
 
     fun loadPostalCodes(query: String) {
         viewModelScope.launch(Dispatchers.Main) {

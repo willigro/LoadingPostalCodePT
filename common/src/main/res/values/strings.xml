@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">WTest</string>
+
+    <!-- TODO create different files -->
+
+    <!-- Main Activity -->
+    <string name="main_activity_open_settings_action">Open Settings</string>
+
     <!-- Permissions -->
     <string name="permissions_were_denied_dialog_message">Can you please accept these permissions?</string>
     <string name="permissions_were_denied">How dare you?</string>

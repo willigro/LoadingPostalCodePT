@@ -1,19 +1,14 @@
 package com.rittmann.wtest.application
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.rittmann.common.lifecycle.LifecycleApp
-import com.rittmann.common.workmanager.DownLoadFileWorkManager
 import com.rittmann.widgets.dialog.ModalUtil
 import com.rittmann.wtest.R
-import dagger.hilt.EntryPoints
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 
 @HiltAndroidApp
 class WTestApplication : Application(), LifecycleApp, Configuration.Provider {
