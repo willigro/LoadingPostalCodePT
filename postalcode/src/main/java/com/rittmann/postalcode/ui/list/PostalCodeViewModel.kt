@@ -1,6 +1,5 @@
 package com.rittmann.postalcode.ui.list
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,7 @@ import androidx.paging.cachedIn
 import androidx.work.WorkInfo
 import com.rittmann.baselifecycle.livedata.SingleLiveEvent
 import com.rittmann.common.lifecycle.BaseViewModelApp
+import com.rittmann.common.tracker.track
 import com.rittmann.datasource.usecase.postalcode.PostalCodeUseCase
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,10 +37,11 @@ class PostalCodeViewModel @Inject constructor(
     private val progressModelDownload = ProgressPriorityControl.ProgressModel(id = "download")
     private val progressModelRegister = ProgressPriorityControl.ProgressModel(id = "register")
 
-    private val _postalCodes: MediatorLiveData<PagingData<com.rittmann.datasource.model.PostalCode>> = MediatorLiveData()
+    private val _postalCodes: MediatorLiveData<PagingData<com.rittmann.datasource.model.PostalCode>> =
+        MediatorLiveData()
     val postalCodes: LiveData<PagingData<com.rittmann.datasource.model.PostalCode>> = _postalCodes
 
-    fun loadPostalCodes(query: String) {
+    fun loadPostalCodes(query: String) = track {
         viewModelScope.launch(Dispatchers.Main) {
             previous?.also {
                 _postalCodes.removeSource(it)
@@ -52,7 +53,7 @@ class PostalCodeViewModel @Inject constructor(
         }
     }
 
-    fun downloadPostalCodes() {
+    fun downloadPostalCodes() = track {
         showProgress(progressModelDownload)
 
         if (postalUseCase.wasDownloadAlreadyConcluded()) {
@@ -62,31 +63,30 @@ class PostalCodeViewModel @Inject constructor(
         }
 
         _downloadPostalCodeWorkInfo.addSource(postalUseCase.downloadPostalCodes()) {
-            Log.i("TESTING", "UPDATING_LIVE_DATA $it")
+            track(it.toString())
             _downloadPostalCodeWorkInfo.value = it
         }
     }
 
-    fun downloadPostalCodeIsEnqueued() {
+    fun downloadPostalCodeIsEnqueued() = track {
         if (postalUseCase.wasDownloadAlreadyConcluded()) {
             _downloadWasAlreadyConclude.call()
             hideProgress(progressModelDownload)
         }
     }
 
-    fun downloadPostalCodeIsRunning() {
-        Log.i("TESTING", "downloadPostalCodeIsRunning progressModelDownload.added=${progressModelDownload.added}")
+    fun downloadPostalCodeIsRunning() = track {
         if (postalUseCase.wasDownloadAlreadyConcluded().not()) {
             showProgress(progressModelDownload)
         }
     }
 
-    fun downloadHasFailed() {
+    fun downloadHasFailed() = track {
         postalUseCase.downloadHasFailed()
         hideProgress(progressModelDownload)
     }
 
-    fun storePostalCode() {
+    fun storePostalCode() = track {
         showProgress(progressModelRegister)
 
         if (postalUseCase.wasStoreAlreadyConcluded()) {
@@ -100,14 +100,14 @@ class PostalCodeViewModel @Inject constructor(
         }
     }
 
-    fun storePostalCodeIsEnqueued() {
+    fun storePostalCodeIsEnqueued() = track {
         if (postalUseCase.wasStoreAlreadyConcluded()) {
             _storeWasAlreadyConclude.call()
             hideProgress(progressModelRegister)
         }
     }
 
-    fun storePostalCodeHasFailed() {
+    fun storePostalCodeHasFailed() = track {
         postalUseCase.storePostalCodeHasFailed()
         hideProgress(progressModelRegister)
     }

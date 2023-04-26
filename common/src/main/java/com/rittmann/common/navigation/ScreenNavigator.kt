@@ -14,7 +14,6 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.findFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
-import com.rittmann.androidtools.log.log
 import com.rittmann.baselifecycle.base.BaseFragment
 import com.rittmann.common.constants.INVALID_ID
 import com.rittmann.common.lifecycle.BaseBindingActivity
@@ -25,6 +24,7 @@ import com.rittmann.common.lifecycle.FRAGMENT_RESULT_KEY
 import com.rittmann.common.navigation.CloseScreen.CloseBehavior
 import com.rittmann.common.navigation.CloseScreen.CloseReason
 import com.rittmann.common.navigation.OpenScreen.FinishType
+import com.rittmann.common.tracker.track
 import java.lang.Integer.max
 
 /**
@@ -335,7 +335,7 @@ class ScreenNavigator(
         fragment: Fragment,
         fragmentManager: FragmentManager,
     ) {
-        "show fragment=${fragment::class.java.simpleName}".log()
+        track("Navigating to ${fragment::class.java.simpleName}")
         fragmentManager.commit {
             setTransition(TRANSIT_FRAGMENT_FADE)
             show(fragment)

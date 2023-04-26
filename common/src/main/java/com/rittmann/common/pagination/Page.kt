@@ -1,18 +1,15 @@
 package com.rittmann.common.pagination
 
 import androidx.lifecycle.MutableLiveData
-import com.rittmann.androidtools.log.log
 
 interface PageItem {
     fun getIdentification(): String
 }
 
 fun <T : PageItem> List<T>.different(list: List<T>): Boolean {
-    "sizes: current $size new ${list.size}".log()
     if (size != list.size) return true
 
     for (i in 0 until size) {
-        "ids: ${this[i].getIdentification()} <-> ${list[i].getIdentification()}".log()
         if (this[i].getIdentification() != list[i].getIdentification()) return true
     }
 
@@ -77,7 +74,6 @@ data class PageInfo<T : PageItem>(
         if (pageResult.list.isNotEmpty())
             page = requestedPage
 
-        "is to load again: $load".log()
         val result = if (load) completeList else {
             arrayListOf<T>().apply {
                 addAll(completeList)
@@ -133,7 +129,6 @@ data class PageInfo<T : PageItem>(
 
         return this.copy(page = p).also { info ->
             requestedPage = info.page
-            "hasPageToLoad, trying load the page ${info.page}".log()
         }
     }
 

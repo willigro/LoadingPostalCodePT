@@ -5,6 +5,7 @@ import androidx.paging.PagingState
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.rittmann.androidtools.log.log
 import com.rittmann.common.extensions.removeAccents
+import com.rittmann.common.tracker.track
 import com.rittmann.datasource.local.dao.PostalCodeDao
 import com.rittmann.datasource.local.dao.TablePostalCode
 import com.rittmann.datasource.local.dao.like
@@ -94,7 +95,7 @@ class PostalCodePagingSource @Inject constructor(
                             " LIMIT $limit OFFSET $offset"
                 )
 
-                sqliteQuery.sql?.log()
+                track(sqliteQuery.sql)
 
                 postalCodeDao.getPagedList(sqliteQuery)
             }

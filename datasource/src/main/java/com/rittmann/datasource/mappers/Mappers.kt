@@ -1,10 +1,10 @@
-package com.rittmann.common.mappers
+package com.rittmann.datasource.mappers
 
 import com.rittmann.common.extensions.toIntOrZero
 import com.rittmann.datasource.model.PostalCode
 
-fun List<String>.lineStringFromCsvToPostalCodeList(): com.rittmann.datasource.model.PostalCode =
-    com.rittmann.datasource.model.PostalCode(
+fun List<String>.lineStringFromCsvToPostalCodeList(): PostalCode =
+    PostalCode(
         id = 0L,
         codDistrito = this[0].toIntOrZero(),
         codConcelho = this[1].toIntOrZero(),

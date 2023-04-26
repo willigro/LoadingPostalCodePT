@@ -15,7 +15,10 @@ import androidx.work.WorkerParameters
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.rittmann.common.R
 import com.rittmann.common.constants.EMPTY_STRING
-import com.rittmann.common.mappers.lineStringFromCsvToPostalCodeList
+import com.rittmann.datasource.mappers.lineStringFromCsvToPostalCodeList
+import com.rittmann.datasource.local.preferences.SharedPreferencesModel
+import com.rittmann.datasource.model.PostalCode
+import com.rittmann.datasource.repositories.postalcode.PostalCodeRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -23,8 +26,8 @@ import dagger.assisted.AssistedInject
 class RegisterPostalCodeWorkManager @AssistedInject constructor(
     @Assisted applicationContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val postalCodeRepository: com.rittmann.datasource.repositories.postalcode.PostalCodeRepository,
-    private val sharedPreferencesModel: com.rittmann.datasource.local.preferences.SharedPreferencesModel
+    private val postalCodeRepository: PostalCodeRepository,
+    private val sharedPreferencesModel: SharedPreferencesModel
 ) : CoroutineWorker(applicationContext, workerParams) {
 
     private val notificationId = 456
@@ -55,7 +58,7 @@ class RegisterPostalCodeWorkManager @AssistedInject constructor(
         * I'll take it as everything was registered, just for simplicity
         * */
         if (postalCodeRepository.getCount() == 0) {
-            val postalCodes = arrayListOf<com.rittmann.datasource.model.PostalCode>()
+            val postalCodes = arrayListOf<PostalCode>()
             csvReader().open(POSTAL_CODE_FILE_PATH) {
 
                 val sequence = readAllAsSequence()

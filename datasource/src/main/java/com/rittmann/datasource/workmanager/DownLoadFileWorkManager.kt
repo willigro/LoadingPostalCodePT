@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -16,6 +15,8 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rittmann.common.R
 import com.rittmann.common.constants.EMPTY_STRING
+import com.rittmann.common.tracker.track
+import com.rittmann.datasource.local.preferences.SharedPreferencesModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File
@@ -37,7 +38,7 @@ const val POSTAL_CODE_URL =
 class DownLoadFileWorkManager @AssistedInject constructor(
     @Assisted applicationContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val sharedPreferencesModel: com.rittmann.datasource.local.preferences.SharedPreferencesModel
+    private val sharedPreferencesModel: SharedPreferencesModel
 ) : CoroutineWorker(applicationContext, workerParams) {
 
     private val notificationId = 123
@@ -45,22 +46,23 @@ class DownLoadFileWorkManager @AssistedInject constructor(
         applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as
                 NotificationManager
 
-    private var channelId: String
+    private var channelId: String = ""
 
     init {
-        channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(
-                DownLoadFileWorkManager::class.java.name,
-                "My Background Service"
-            )
-        } else {
-            ""
+        track("DownLoadFileWorkManager") {
+            channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel(
+                    DownLoadFileWorkManager::class.java.name,
+                    "My Background Service"
+                )
+            } else {
+                ""
+            }
         }
-        Log.i("TESTING", "DownLoadFileWorkManager channelId=$channelId")
     }
 
     override suspend fun doWork(): Result {
-        Log.i("TESTING", "DownLoadFileWorkManager doWork")
+        track()
 
         setForeground(
             ForegroundInfo(notificationId, createNotification())
@@ -81,7 +83,7 @@ class DownLoadFileWorkManager @AssistedInject constructor(
                 .url(POSTAL_CODE_URL)
                 .build()
 
-        Log.i("TESTING", "making request POSTAL_CODE_URL=$POSTAL_CODE_URL")
+        track("making request POSTAL_CODE_URL=$POSTAL_CODE_URL")
 
         return try {
             val response = okHttpClient.newCall(request).execute()
@@ -92,7 +94,8 @@ class DownLoadFileWorkManager @AssistedInject constructor(
                 responseCode < HttpURLConnection.HTTP_MULT_CHOICE &&
                 body != null
             ) {
-                Log.i("TESTING", "responseCode=$responseCode")
+                track("responseCode=$responseCode")
+
                 body.byteStream().apply {
                     val file = File(POSTAL_CODE_FILE_PATH)
                     file.createNewFile()
@@ -117,16 +120,13 @@ class DownLoadFileWorkManager @AssistedInject constructor(
                 }
                 Result.success()
             } else {
-                Log.i(
-                    "TESTING",
-                    "Error responseCode=${response.code}, message=${response.message}, body=${response.body}"
-                )
+                track("Error responseCode=${response.code}, message=${response.message}, body=${response.body}")
                 // Report the error
                 Result.failure()
             }
         } catch (e: Throwable) {
+            track(e)
             e.printStackTrace()
-            Log.i("TESTING", "Error e=${e.message}")
             Result.failure()
         }
     }
@@ -136,7 +136,7 @@ class DownLoadFileWorkManager @AssistedInject constructor(
      * in a foreground service.
      */
     private fun createNotification(): Notification {
-        Log.i("TESTING", "DownLoadFileWorkManager createNotification")
+        track()
         val cancelPendingIntent =
             WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
 
@@ -174,7 +174,7 @@ class DownLoadFileWorkManager @AssistedInject constructor(
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         notificationManager.createNotificationChannel(chan)
-        Log.i("TESTING", "DownLoadFileWorkManager createNotificationChannel $channelId")
+        track(channelId)
         return channelId
     }
 
