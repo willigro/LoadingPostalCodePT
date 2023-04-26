@@ -7,6 +7,7 @@ import com.rittmann.common.extensions.gone
 import com.rittmann.common.extensions.visible
 import com.rittmann.common.lifecycle.BaseBindingActivity
 import com.rittmann.common.liveevent.ConsumerObserver
+import com.rittmann.common.tracker.track
 import com.rittmann.widgets.dialog.modal
 import com.rittmann.wtest.R
 import com.rittmann.wtest.databinding.ActivityMainBinding
@@ -17,12 +18,27 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
     private val viewModel: MainViewModel by viewModels()
 
-    override val screenHolder: Int = R.id.main_container
+    override val screenHolder: Int = R.id.main_container.apply {
+        track(this.toString())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupObservers()
-        requestPermissions()
+        setupViews()
+
+        if (arePermissionsGranted()) {
+            requestPermissionsGranted()
+        }
+    }
+
+    private fun setupViews() = binding.apply {
+        labelPermissionsAreNeeded.visible()
+        buttonGivePermission.visible()
+
+        buttonGivePermission.setOnClickListener {
+            requestStoragePermissions()
+        }
     }
 
     private fun setupObservers() {
@@ -37,9 +53,13 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     }
 
     override fun requestPermissionsGranted() {
+        track()
         viewModel.showPostalCodeScreen()
 
         binding.apply {
+            labelPermissionsAreNeeded.gone()
+            buttonGivePermission.gone()
+
             labelPermissionsWereDenied.gone()
             buttonOpenSettings.gone()
         }
@@ -48,14 +68,15 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     override fun requestPermissionsDenied() {
         super.requestPermissionsDenied()
 
-        // TODO: adjust the reference error
+        track()
         modal(
             message = getString(com.rittmann.common.R.string.permissions_were_denied_dialog_message),
-            ok = true,
             show = true,
-            cancelable = true,
             onClickConclude = {
-                requestPermissions()
+                requestStoragePermissions()
+            },
+            onClickCancel = {
+                requestPermissionsDeniedAndBlocked()
             }
         )
     }
@@ -63,12 +84,15 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     override fun requestPermissionsDeniedAndBlocked() {
         super.requestPermissionsDeniedAndBlocked()
 
+        track()
         binding.apply {
+            labelPermissionsAreNeeded.gone()
+            buttonGivePermission.gone()
+
             labelPermissionsWereDenied.apply {
                 if (isVisible) return
 
                 visible()
-                // TODO: adjust the reference error
                 text = getString(com.rittmann.common.R.string.permissions_were_denied_and_blocked)
             }
 
@@ -86,6 +110,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     }
 
     override fun onFragmentResult(requestKey: String, result: Bundle) {
-
+        track()
     }
 }

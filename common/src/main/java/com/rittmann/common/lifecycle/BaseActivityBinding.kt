@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentResultListener
 import com.rittmann.common.R
 import com.rittmann.common.extensions.toast
 import com.rittmann.common.navigation.ScreenNavigator
+import com.rittmann.common.tracker.track
 import com.rittmann.widgets.progress.ProgressPriorityControl
 import com.rittmann.widgets.progress.ProgressVisibleControl
 
@@ -36,7 +37,7 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
 
     private val progressPriorityControl: ProgressPriorityControl = ProgressPriorityControl()
 
-    private val storagePermissionResultLauncher: ActivityResultLauncher<Intent> by lazy {
+    private val storagePermissionResultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
@@ -48,7 +49,6 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
                 }
             }
         }
-    }
 
     protected lateinit var binding: T
 
@@ -168,8 +168,25 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
         }
     }
 
+     fun arePermissionsGranted(): Boolean {
+        if (Environment.isExternalStorageManager()) return true
+
+        for (permission in PERMISSIONS_STORAGE) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+
+        return true
+    }
+
     // TODO: move the permissions code
-    fun requestPermissions() {
+    fun requestStoragePermissions() {
+        track()
         // Request all permissions at once of External Storage Manager in case of Build.VERSION_CODES.R or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
@@ -202,6 +219,7 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
     }
 
     protected fun openSettingsToGrantPermissions() {
+        track()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             storagePermissionResultLauncher.launch(
                 Intent(
@@ -225,6 +243,7 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
         permissions: Array<String>,
         grantResults: IntArray,
     ) {
+        track()
         when (requestCode) {
             REQUEST_EXTERNAL_STORAGE -> {
                 for (i in permissions.indices) {
@@ -260,11 +279,16 @@ abstract class BaseBindingActivity<T : ViewDataBinding>(private val resId: Int) 
      * I don't wanna make a listener for it, so I'm going to call this open functions and
      * implement them if I wanna to
      * */
-    open fun requestPermissionsGranted() {}
+    open fun requestPermissionsGranted() {
+        track()
+    }
 
     open fun requestPermissionsDenied() {
+        track()
         toast(getString(R.string.permissions_were_denied))
     }
 
-    open fun requestPermissionsDeniedAndBlocked() {}
+    open fun requestPermissionsDeniedAndBlocked() {
+        track()
+    }
 }

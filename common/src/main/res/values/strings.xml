@@ -5,6 +5,12 @@
     <!-- TODO create different files -->
 
     <!-- Main Activity -->
+    <string name="main_activity_permissions_are_needed">
+        The permission is needed to Load the postal code and store them
+    </string>
+    <string name="main_activity_give_permission_action">
+        Give permission
+    </string>
     <string name="main_activity_open_settings_action">Open Settings</string>
 
     <!-- Permissions -->

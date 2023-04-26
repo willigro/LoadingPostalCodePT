@@ -55,9 +55,16 @@ class ScreenNavigator(
     }
 
     private fun startOpenScreenEvent(event: OpenScreen) = with(event) {
+        track(event.toString())
+
         val fragment = getFragmentFromEvent(this)
+
         val containerViewId =
-            if (event.containerViewId == INVALID_ID) activity.screenHolder else event.containerViewId
+            if (event.containerViewId == INVALID_ID) activity.screenHolder
+            else event.containerViewId
+
+        track("containerViewId=$containerViewId")
+
         val fragmentManager = getFragmentManager(containerViewId)
 
         when (finishType) {

@@ -10,6 +10,29 @@
         tools:context=".main.MainActivity">
 
         <TextView
+            android:id="@+id/label_permissions_are_needed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_activity_permissions_are_needed"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/button_give_permission"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="gone" />
+
+        <Button
+            android:id="@+id/button_give_permission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_activity_give_permission_action"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <TextView
             android:id="@+id/label_permissions_were_denied"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
