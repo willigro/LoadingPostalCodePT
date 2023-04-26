@@ -1,29 +1,22 @@
 package com.rittmann.datasource.usecase.postalcode
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ListenableWorker
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.rittmann.androidtools.log.log
 import com.rittmann.common.constants.EMPTY_STRING
+import com.rittmann.common.tracker.track
 import com.rittmann.datasource.local.preferences.SharedPreferencesModel
 import com.rittmann.datasource.model.PostalCode
 import com.rittmann.datasource.repositories.postalcode.PostalCodeRepository
 import com.rittmann.datasource.workmanager.DownLoadFileWorkManager
 import com.rittmann.datasource.workmanager.RegisterPostalCodeWorkManager
-import java.util.UUID
-import java.util.Calendar
+import java.util.*
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 interface PostalCodeUseCase {
@@ -44,8 +37,7 @@ class PostalCodeUseCaseImpl @Inject constructor(
 
     private val workManager = WorkManager.getInstance(context)
 
-    override fun downloadPostalCodes(): LiveData<WorkInfo> {
-        Log.i("TESTING", "PostalCodeUseCaseImpl downloadPostalCodes")
+    override fun downloadPostalCodes(): LiveData<WorkInfo> = track<LiveData<WorkInfo>> {
         return createOneTimeWorkRequest<DownLoadFileWorkManager>(
             getDownloadPostalCodeNotificationId(),
             WorkerType.DOWNLOAD,
@@ -58,14 +50,11 @@ class PostalCodeUseCaseImpl @Inject constructor(
     }
 
     override fun wasDownloadAlreadyConcluded(): Boolean {
-        return sharedPreferencesModel.isDownloadConcluded().apply {
-            "wasDownloadAlreadyConcluded $this".log()
-        }
+        return sharedPreferencesModel.isDownloadConcluded()
     }
 
-    override fun storePostalCode(): LiveData<WorkInfo> {
-        return createPeriodicWorkRequest(
-            RegisterPostalCodeWorkManager::class.java,
+    override fun storePostalCode(): LiveData<WorkInfo> = track<LiveData<WorkInfo>> {
+        return createOneTimeWorkRequest<RegisterPostalCodeWorkManager>(
             getRegisterPostalCodeNotificationId(),
             WorkerType.REGISTER,
         )
@@ -77,9 +66,7 @@ class PostalCodeUseCaseImpl @Inject constructor(
     }
 
     override fun wasStoreAlreadyConcluded(): Boolean {
-        return sharedPreferencesModel.isRegisterPostalCodeConcluded().apply {
-            "wasStoreAlreadyConcluded $this".log()
-        }
+        return sharedPreferencesModel.isRegisterPostalCodeConcluded()
     }
 
     override fun pagingSource(query: String): LiveData<PagingData<PostalCode>> {
@@ -90,106 +77,85 @@ class PostalCodeUseCaseImpl @Inject constructor(
         DOWNLOAD, REGISTER
     }
 
-    /**
-     * Private section
-     * */
-    private fun createPeriodicWorkRequest(
-        workerClass: Class<out ListenableWorker>,
-        notificationString: String,
-        workerType: WorkerType,
-    ): LiveData<WorkInfo> {
-        val workRequest = PeriodicWorkRequest.Builder(
-            workerClass,
-            PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS,
-            TimeUnit.SECONDS
-        ).setConstraints(
-            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-        ).build()
-
-        /**
-        Could not instantiate com.rittmann.common.workmanager.DownLoadFileWorkManager
-        java.lang.NoSuchMethodException: com.rittmann.common.workmanager.DownLoadFileWorkManager.<init> [class android.content.Context, class androidx.work.WorkerParameters]
-         * */
-
-//        val workRequest =
-//            OneTimeWorkRequestBuilder<DownLoadFileWorkManager>().build()
-//        workManager.enqueue(workRequest)
-        workManager.enqueueUniquePeriodicWork(
-            notificationString,
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest,
-        )
-//
-        val isRunning = isWorkScheduled(notificationString)
-
-        val id = getPeriodicId(
-            workRequest.id,
-            workerType,
-            isRunning,
-        )
-//
-//        Log.i(
-//            "TESTING",
-//            "PostalCodeUseCaseImpl createPeriodicWorkRequest id=$id, notificationString=$notificationString"
-//        )
-        return workManager.getWorkInfoByIdLiveData(
-            id
-        )
-    }
-
     private inline fun <reified T : ListenableWorker> createOneTimeWorkRequest(
         notificationString: String,
         workerType: WorkerType,
     ): LiveData<WorkInfo> {
-        val workRequest = OneTimeWorkRequestBuilder<T>().build()
-
-        workManager.enqueueUniqueWork(
-            notificationString,
-            ExistingWorkPolicy.KEEP,
-            workRequest,
-        )
-
         val isRunning = isWorkScheduled(notificationString)
 
-        val id = getPeriodicId(
-            workRequest.id,
+        val currentId = getPeriodicId(
             workerType,
             isRunning,
         )
 
-        return workManager.getWorkInfoByIdLiveData(
-            id
-        )
-    }
+        return if (currentId == null) {
+            val workRequest = OneTimeWorkRequestBuilder<T>().build()
 
-    private fun getPeriodicId(uuid: UUID, workerType: WorkerType, isRunning: Boolean): UUID {
-        Log.i(
-            "TESTING",
-            "PostalCodeUseCaseImpl getPeriodicId uuid=$uuid, workerType=$workerType, isRunning=$isRunning"
-        )
-        return when (workerType) {
-            WorkerType.DOWNLOAD -> {
-                val id = sharedPreferencesModel.getDownloadPostalCodePeriodicId()
-                if (id.isEmpty()) {
-                    sharedPreferencesModel.setDownloadPostalCodePeriodicId(uuid.toString())
-                }
+            workManager.enqueueUniqueWork(
+                notificationString,
+                ExistingWorkPolicy.KEEP,
+                workRequest,
+            )
 
-                UUID.fromString(
-                    sharedPreferencesModel.getDownloadPostalCodePeriodicId()
-                )
-            }
-            WorkerType.REGISTER -> {
-                val id = sharedPreferencesModel.getRegisterPostalCodePeriodicId()
-                if (id.isEmpty()) {
-                    sharedPreferencesModel.setRegisterPostalCodePeriodicId(uuid.toString())
-                }
+            val id = getPeriodicId(
+                workRequest.id,
+                workerType,
+                isRunning,
+            )
 
-                UUID.fromString(
-                    sharedPreferencesModel.getRegisterPostalCodePeriodicId()
-                )
-            }
+            workManager.getWorkInfoByIdLiveData(
+                id
+            )
+        } else {
+            workManager.getWorkInfoByIdLiveData(
+                currentId
+            )
         }
     }
+
+    private fun getPeriodicId(uuid: UUID, workerType: WorkerType, isRunning: Boolean): UUID =
+        track<UUID>("uuid=$uuid, workerType=$workerType, isRunning=$isRunning") {
+            return when (workerType) {
+                WorkerType.DOWNLOAD -> {
+                    val id = sharedPreferencesModel.getDownloadPostalCodePeriodicId()
+                    if (id.isEmpty()) {
+                        sharedPreferencesModel.setDownloadPostalCodePeriodicId(uuid.toString())
+                    }
+
+                    UUID.fromString(
+                        sharedPreferencesModel.getDownloadPostalCodePeriodicId()
+                    )
+                }
+                WorkerType.REGISTER -> {
+                    val id = sharedPreferencesModel.getRegisterPostalCodePeriodicId()
+                    if (id.isEmpty()) {
+                        sharedPreferencesModel.setRegisterPostalCodePeriodicId(uuid.toString())
+                    }
+
+                    UUID.fromString(
+                        sharedPreferencesModel.getRegisterPostalCodePeriodicId()
+                    )
+                }
+            }
+        }
+
+    private fun getPeriodicId(workerType: WorkerType, isRunning: Boolean): UUID? =
+        track<UUID>("workerType=$workerType, isRunning=$isRunning") {
+            return when (workerType) {
+                WorkerType.DOWNLOAD -> {
+                    sharedPreferencesModel.getDownloadPostalCodePeriodicId().let {
+                        if (it.isEmpty()) null
+                        else UUID.fromString(it)
+                    }
+                }
+                WorkerType.REGISTER -> {
+                    sharedPreferencesModel.getRegisterPostalCodePeriodicId().let {
+                        if (it.isEmpty()) null
+                        else UUID.fromString(it)
+                    }
+                }
+            }
+        }
 
     private fun getDownloadPostalCodeNotificationId(): String {
         var notificationId = sharedPreferencesModel.getDownloadPostalCodeNotificationId()
@@ -210,7 +176,7 @@ class PostalCodeUseCaseImpl @Inject constructor(
     }
 
     private fun isWorkScheduled(tag: String): Boolean {
-        Log.i("TESTING", "isWorkScheduled $tag")
+        track(tag)
         return try {
             val workInfoList: List<WorkInfo?> =
                 workManager.getWorkInfosForUniqueWork(tag).get() ?: arrayListOf<WorkInfo>()
@@ -221,11 +187,11 @@ class PostalCodeUseCaseImpl @Inject constructor(
             }
             running
         } catch (e: ExecutionException) {
-            Log.i("TESTING", "isWorkScheduled ${e.message}")
+            track(e)
             e.printStackTrace()
             false
         } catch (e: InterruptedException) {
-            Log.i("TESTING", "isWorkScheduled ${e.message}")
+            track(e)
             e.printStackTrace()
             false
         }
