@@ -12,5 +12,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+
+        <!-- Customize your theme here. -->
+        <item name="bodyTextStyle">@style/BodyText</item>
+        <item name="mediumButtonStyle">@style/MediumButton</item>
     </style>
 </resources>
