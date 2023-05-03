@@ -1,7 +1,8 @@
 import Depends.Databinding.implementDatabinding
-import Depends.Fragment.implementFragmentKtx
+import Depends.Fragment.implementFragmentAndroidKtxAndNavigationCompose
 import Depends.Hilt.implementHilt
 import Depends.Kotlin.implementKotlinForModule
+import Depends.Lottie.implementLottie
 import Depends.Module.implementAllModules
 import Depends.Retrofit.implementRetrofit
 import Depends.Robbie.implementRobbie
@@ -24,7 +25,7 @@ dependencies {
     implementKotlinForModule()
 
     // =========== Fragment ==============
-    implementFragmentKtx()
+    implementFragmentAndroidKtxAndNavigationCompose()
 
     // =========== AppCompat ==============
     implementation(Depends.AppCompat.getAppcompat())
@@ -57,4 +58,7 @@ dependencies {
 
     // =========== Worker ==============
     implementWorker()
+
+    // =========== Lottie ==============
+    implementLottie()
 }

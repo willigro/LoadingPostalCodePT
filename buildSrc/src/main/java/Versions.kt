@@ -78,4 +78,7 @@ object Versions {
     const val RETROFIT_GSON_CONVERTER = "2.5.0"
     const val GOOGLE_GSON = "2.8.6"
     const val SQUAREUP_OK_HTTP_3_LOGGING_INTERCEPTOR = "4.2.1"
+
+    // Lottie
+    const val LOTTIE = "6.0.0"
 }

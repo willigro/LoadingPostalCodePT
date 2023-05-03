@@ -6,7 +6,7 @@
 
     <!-- Main Activity -->
     <string name="main_activity_permissions_are_needed">
-        The permission is needed to Load the postal code and store them
+        The permission is needed to download the postal code and store them
     </string>
     <string name="main_activity_give_permission_action">
         Give permission

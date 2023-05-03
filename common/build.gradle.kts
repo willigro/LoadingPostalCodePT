@@ -1,4 +1,4 @@
-import Depends.Fragment.implementFragmentKtx
+import Depends.Fragment.implementFragmentAndroidKtxAndNavigationCompose
 import Depends.Kotlin.implementKotlinForModule
 import Depends.Robbie.implementRobbie
 import Depends.ViewModel.implementViewModel
@@ -28,5 +28,5 @@ dependencies {
     implementation(Depends.Material.getMaterial())
 
     // =========== ScreenNavigator fragment dependencies ==============
-    implementFragmentKtx()
+    implementFragmentAndroidKtxAndNavigationCompose()
 }

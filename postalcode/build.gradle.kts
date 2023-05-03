@@ -1,7 +1,7 @@
 import Depends.AndroidTest.implementEspressoTest
 import Depends.Hilt.implementHilt
 import Depends.Databinding.implementDatabinding
-import Depends.Fragment.implementFragmentKtx
+import Depends.Fragment.implementFragmentAndroidKtxAndNavigationCompose
 import Depends.Kotlin.implementKotlinForModule
 import Depends.Module.implementModules
 import Depends.Retrofit.implementRetrofit
@@ -27,7 +27,7 @@ dependencies {
     implementKotlinForModule()
 
     // =========== Fragment ==============
-    implementFragmentKtx()
+    implementFragmentAndroidKtxAndNavigationCompose()
 
     // =========== AppCompat ==============
     implementation(Depends.AppCompat.getAppcompat())

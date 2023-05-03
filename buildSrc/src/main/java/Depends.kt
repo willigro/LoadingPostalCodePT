@@ -226,43 +226,6 @@ object Depends {
         fun DependencyHandler.implementViewModel() {
             implement("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.LIFECYCLE}")
             implement("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
-
-//            val lifecycle_version = Versions.LIFECYCLE
-//            val arch_version = Versions.LIFECYCLE_ARCH
-
-            // ViewModel
-//            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-//            // ViewModel utilities for Compose
-//            implement("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-//            // LiveData
-//            implement("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-//            // Lifecycles only (without ViewModel or LiveData)
-//            implement("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-//            // Lifecycle utilities for Compose
-//            implement("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
-//
-//            // Saved state module for ViewModel
-//            implement("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
-//
-//            // Annotation processor
-//            kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
-//            // alternately - if using Java8, use the following instead of lifecycle-compiler
-//            implement("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
-//
-//            // optional - helpers for implementing LifecycleOwner in a Service
-//            implement("androidx.lifecycle:lifecycle-service:$lifecycle_version")
-//
-//            // optional - ProcessLifecycleOwner provides a lifecycle for the whole application process
-//            implement("androidx.lifecycle:lifecycle-process:$lifecycle_version")
-//
-//            // optional - ReactiveStreams support for LiveData
-//            implement("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
-//
-//            // optional - Test helpers for LiveData
-//            testImplement("androidx.arch.core:core-testing:$arch_version")
-//
-//            // optional - Test helpers for Lifecycle runtime
-//            testImplement("androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version")
         }
     }
 
@@ -298,15 +261,16 @@ object Depends {
     }
 
     object Fragment {
-        fun DependencyHandler.implementFragmentKtx() {
+        fun DependencyHandler.implementFragmentAndroidKtxAndNavigationCompose() {
             implement("androidx.fragment:fragment-ktx:${Versions.FRAGMENT_KTX}")
             implement("androidx.activity:activity-ktx:1.5.0")
             implement("androidx.navigation:navigation-compose:2.5.1")
+        }
+    }
 
-            val lifecycle = "2.3.1"
-            implement("androidx.lifecycle:lifecycle-viewmodel-ktx:${lifecycle}")
-            implement("androidx.lifecycle:lifecycle-livedata-ktx:${lifecycle}")
-//            implement("androidx.fragment:fragment-ktx:${Versions.FRAGMENT_KTX}")
+    object Lottie {
+        fun DependencyHandler.implementLottie() {
+            implement("com.airbnb.android:lottie:${Versions.LOTTIE}")
         }
     }
 }
